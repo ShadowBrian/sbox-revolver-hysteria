@@ -45,6 +45,8 @@ namespace rh
 			RingClamp = 1f;
 		}
 
+		bool CycleBreak;
+
 		public void HandleHand()
 		{
 			if ( hand == HandSide.None )
@@ -87,6 +89,29 @@ namespace rh
 			Rotation = vrhand.Transform.Rotation * new Angles( 45, 0, 0 ).ToRotation();
 
 			Position = vrhand.Transform.Position - vrhand.Transform.Rotation.Forward * 5f;
+
+			SetAnimParameter( "b_open", vrhand.ButtonB.WasPressed || vrhand.JoystickPress.WasPressed);
+
+			SetAnimParameter( "b_close", vrhand.Velocity.z > 100f );
+
+			SetAnimParameter( "f_zvel", MathX.Lerp(GetAnimParameterFloat("f_zvel"), -vrhand.Velocity.z, 0.1f));
+
+			SetAnimParameter( "f_trigger", vrhand.Trigger.Value );
+
+			if(vrhand.Trigger.Value >= 0.9f )
+			{
+				CycleBreak = true;
+			}
+
+			if ( vrhand.Trigger.Value <= 0.1f )
+			{
+				CycleBreak = false;
+			}
+
+			if (!CycleBreak)
+			{
+				SetAnimParameter( "f_hammer", MathF.Max( vrhand.Trigger.Value, -vrhand.Joystick.Value.y ) );
+			}
 
 			/*if ( Input.VR.IsKnuckles || Input.VR.IsRift )
 			{
