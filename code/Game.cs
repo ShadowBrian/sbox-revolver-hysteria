@@ -4,11 +4,10 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-
 //
 // You don't need to put things in a namespace, but it doesn't hurt.
 //
-namespace Sandbox;
+namespace rh;
 
 /// <summary>
 /// This is your game class. This is an entity that is created serverside when
@@ -21,6 +20,7 @@ public partial class MyGame : Sandbox.Game
 {
 	public MyGame()
 	{
+
 	}
 
 	/// <summary>
@@ -31,21 +31,44 @@ public partial class MyGame : Sandbox.Game
 		base.ClientJoined( client );
 
 		// Create a pawn for this client to play with
-		var pawn = new Pawn();
-		client.Pawn = pawn;
-
-		// Get all of the spawnpoints
-		var spawnpoints = Entity.All.OfType<SpawnPoint>();
-
-		// chose a random one
-		var randomSpawnPoint = spawnpoints.OrderBy( x => Guid.NewGuid() ).FirstOrDefault();
-
-		// if it exists, place the pawn there
-		if ( randomSpawnPoint != null )
+		if ( client.IsUsingVr )
 		{
-			var tx = randomSpawnPoint.Transform;
-			tx.Position = tx.Position + Vector3.Up * 50.0f; // raise it up
-			pawn.Transform = tx;
+			var pawn = new VRPlayer();
+			client.Pawn = pawn;
+
+			// Get all of the spawnpoints
+			var spawnpoints = Entity.All.OfType<SpawnPoint>();
+
+			// chose a random one
+			var randomSpawnPoint = spawnpoints.OrderBy( x => Guid.NewGuid() ).FirstOrDefault();
+
+			// if it exists, place the pawn there
+			if ( randomSpawnPoint != null )
+			{
+				var tx = randomSpawnPoint.Transform;
+				tx.Position = tx.Position + Vector3.Up * 50.0f; // raise it up
+				pawn.Transform = tx;
+			}
 		}
+	}
+
+	public override void PostCameraSetup( ref CameraSetup camSetup )
+	{
+		if ( Local.Pawn != null )
+		{
+			// VR anchor default is at the pawn's location
+			//VR.Anchor = Local.Pawn.Transform;
+
+			Local.Pawn.PostCameraSetup( ref camSetup );
+		}
+
+		if ( Input.VR.IsActive )
+			camSetup.ZNear = 2.5f;
+		//
+		// Position any viewmodels
+		//
+		BaseViewModel.UpdateAllPostCamera( ref camSetup );
+
+		//CameraModifier.Apply( ref camSetup );
 	}
 }

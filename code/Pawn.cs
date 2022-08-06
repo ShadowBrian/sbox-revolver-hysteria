@@ -2,13 +2,11 @@
 using System;
 using System.Linq;
 
-namespace Sandbox;
+namespace rh;
 
 partial class Pawn : AnimatedEntity
 {
-	/// <summary>
-	/// Called when the entity is first created 
-	/// </summary>
+	[Net] public VRPlayer VRRig { get; set; }
 	public override void Spawn()
 	{
 		base.Spawn();
@@ -16,7 +14,11 @@ partial class Pawn : AnimatedEntity
 		//
 		// Use a watermelon model
 		//
-		SetModel( "models/sbox_props/watermelon/watermelon.vmdl" );
+		//SetModel( "models/sbox_props/watermelon/watermelon.vmdl" );
+		if ( Input.VR.IsActive )
+		{
+			VRRig = new VRPlayer();
+		}
 
 		EnableDrawing = true;
 		EnableHideInFirstPerson = true;
@@ -29,7 +31,7 @@ partial class Pawn : AnimatedEntity
 	public override void Simulate( Client cl )
 	{
 		base.Simulate( cl );
-
+/*
 		Rotation = Input.Rotation;
 		EyeRotation = Rotation;
 
@@ -60,7 +62,7 @@ partial class Pawn : AnimatedEntity
 			ragdoll.Rotation = Rotation.LookAt( Vector3.Random.Normal );
 			ragdoll.SetupPhysicsFromModel( PhysicsMotionType.Dynamic, false );
 			ragdoll.PhysicsGroup.Velocity = EyeRotation.Forward * 1000;
-		}
+		}*/
 	}
 
 	/// <summary>
@@ -71,7 +73,7 @@ partial class Pawn : AnimatedEntity
 		base.FrameSimulate( cl );
 
 		// Update rotation every frame, to keep things smooth
-		Rotation = Input.Rotation;
-		EyeRotation = Rotation;
+		//Rotation = Input.Rotation;
+		//EyeRotation = Rotation;
 	}
 }
