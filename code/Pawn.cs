@@ -6,7 +6,7 @@ namespace rh;
 
 partial class Pawn : AnimatedEntity
 {
-	[Net] public VRPlayer VRRig { get; set; }
+	[Net, Predicted] public VRPlayer VRRig { get; set; }
 	public override void Spawn()
 	{
 		base.Spawn();
@@ -15,10 +15,6 @@ partial class Pawn : AnimatedEntity
 		// Use a watermelon model
 		//
 		//SetModel( "models/sbox_props/watermelon/watermelon.vmdl" );
-		if ( Input.VR.IsActive )
-		{
-			VRRig = new VRPlayer();
-		}
 
 		EnableDrawing = true;
 		EnableHideInFirstPerson = true;

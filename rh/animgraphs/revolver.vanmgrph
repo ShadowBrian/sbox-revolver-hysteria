@@ -206,6 +206,28 @@
 			{
 				key = 
 				{
+					m_id = 630953883
+				}
+				value = 
+				{
+					_class = "CSequenceAnimNode"
+					m_sName = "Unnamed"
+					m_vecPosition = [ -64.0, 208.0 ]
+					m_nNodeID = 
+					{
+						m_id = 630953883
+					}
+					m_networkMode = "ClientPredicted"
+					m_sNote = ""
+					m_tagSpans = [  ]
+					m_sequenceName = "cylinder_rotate"
+					m_playbackSpeed = 1.0
+					m_bLoop = false
+				}
+			},
+			{
+				key = 
+				{
 					m_id = 664835382
 				}
 				value = 
@@ -607,6 +629,40 @@
 			{
 				key = 
 				{
+					m_id = 1299181925
+				}
+				value = 
+				{
+					_class = "CCycleControlAnimNode"
+					m_sName = "Unnamed"
+					m_vecPosition = [ 128.000015, 208.0 ]
+					m_nNodeID = 
+					{
+						m_id = 1299181925
+					}
+					m_networkMode = "ClientPredicted"
+					m_sNote = ""
+					m_inputConnection = 
+					{
+						m_nodeID = 
+						{
+							m_id = 630953883
+						}
+						m_outputID = 
+						{
+							m_id = 4294967295
+						}
+					}
+					m_valueSource = "Parameter"
+					m_param = 
+					{
+						m_id = 1989546386
+					}
+				}
+			},
+			{
+				key = 
+				{
 					m_id = 1379632711
 				}
 				value = 
@@ -647,7 +703,7 @@
 				{
 					_class = "CRootAnimNode"
 					m_sName = "Unnamed"
-					m_vecPosition = [ 432.0, -80.0 ]
+					m_vecPosition = [ 656.0, -80.0 ]
 					m_nNodeID = 
 					{
 						m_id = 1441419757
@@ -658,7 +714,7 @@
 					{
 						m_nodeID = 
 						{
-							m_id = 59674232
+							m_id = 1884374426
 						}
 						m_outputID = 
 						{
@@ -687,6 +743,52 @@
 					m_sequenceName = "close"
 					m_playbackSpeed = 1.0
 					m_bLoop = false
+				}
+			},
+			{
+				key = 
+				{
+					m_id = 1884374426
+				}
+				value = 
+				{
+					_class = "CAddAnimNode"
+					m_sName = "Unnamed"
+					m_vecPosition = [ 448.0, -80.0 ]
+					m_nNodeID = 
+					{
+						m_id = 1884374426
+					}
+					m_networkMode = "ClientPredicted"
+					m_sNote = ""
+					m_baseInput = 
+					{
+						m_nodeID = 
+						{
+							m_id = 59674232
+						}
+						m_outputID = 
+						{
+							m_id = 4294967295
+						}
+					}
+					m_additiveInput = 
+					{
+						m_nodeID = 
+						{
+							m_id = 1299181925
+						}
+						m_outputID = 
+						{
+							m_id = 4294967295
+						}
+					}
+					m_timingBehavior = "UseChild2"
+					m_flTimingBlend = 0.5
+					m_footMotionTiming = "Child1"
+					m_bResetBase = true
+					m_bResetAdditive = true
+					m_bApplyChannelsSeparately = true
 				}
 			},
 		]
@@ -773,6 +875,23 @@
 				m_fDefaultValue = 0.0
 				m_fMinValue = 0.0
 				m_fMaxValue = 1.0
+				m_bInterpolate = false
+			},
+			{
+				_class = "CFloatAnimParameter"
+				m_name = "f_cylinder"
+				m_id = 
+				{
+					m_id = 1989546386
+				}
+				m_previewButton = "ANIMPARAM_BUTTON_NONE"
+				m_bNetwork = true
+				m_bUseMostRecentValue = false
+				m_bAutoReset = false
+				m_bPredicted = true
+				m_fDefaultValue = 0.0
+				m_fMinValue = 0.0
+				m_fMaxValue = 360.0
 				m_bInterpolate = false
 			},
 		]

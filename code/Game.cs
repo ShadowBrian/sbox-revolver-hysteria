@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 //
 // You don't need to put things in a namespace, but it doesn't hurt.
 //
@@ -22,6 +23,7 @@ public partial class MyGame : Sandbox.Game
 	{
 
 	}
+	[Net] List<VRPlayer> VRPlayers { get; set; }
 
 	/// <summary>
 	/// A client has joined the server. Make them a pawn to play with
@@ -33,7 +35,14 @@ public partial class MyGame : Sandbox.Game
 		// Create a pawn for this client to play with
 		if ( client.IsUsingVr )
 		{
-			var pawn = new VRPlayer();
+
+			var VRRig = new VRPlayer();
+			VRRig.Owner = Owner;
+			VRRig.Predictable = true;
+			client.Pawn = VRRig;
+			VRPlayers.Add( VRRig );
+
+			var pawn = new Pawn();
 			client.Pawn = pawn;
 
 			// Get all of the spawnpoints
@@ -49,6 +58,16 @@ public partial class MyGame : Sandbox.Game
 				tx.Position = tx.Position + Vector3.Up * 50.0f; // raise it up
 				pawn.Transform = tx;
 			}
+		}
+	}
+
+	public override void Simulate( Client cl )
+	{
+		base.Simulate( cl );
+
+		foreach ( var vrplayer in VRPlayers )
+		{
+			vrplayer.Simulate( cl );
 		}
 	}
 

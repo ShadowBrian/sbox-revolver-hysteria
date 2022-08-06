@@ -47,6 +47,10 @@ namespace rh
 
 		bool CycleBreak;
 
+		bool JustFired;
+
+		float TargetCylinderRotation;
+
 		public void HandleHand()
 		{
 			if ( hand == HandSide.None )
@@ -98,7 +102,7 @@ namespace rh
 
 			SetAnimParameter( "f_trigger", vrhand.Trigger.Value );
 
-			if(vrhand.Trigger.Value >= 0.9f )
+			if(vrhand.Trigger.Value >= 0.95f )
 			{
 				CycleBreak = true;
 			}
@@ -106,12 +110,28 @@ namespace rh
 			if ( vrhand.Trigger.Value <= 0.1f )
 			{
 				CycleBreak = false;
+				JustFired = false;
 			}
 
 			if (!CycleBreak)
 			{
 				SetAnimParameter( "f_hammer", MathF.Max( vrhand.Trigger.Value, -vrhand.Joystick.Value.y ) );
 			}
+			else
+			{
+				SetAnimParameter( "f_hammer", 1f );
+				if(!JustFired )
+				{
+					JustFired = true;
+					TargetCylinderRotation += 60f;
+					/*if(TargetCylinderRotation > 360 )
+					{
+						TargetCylinderRotation = 0f;
+					}*/
+				}
+			}
+
+			SetAnimParameter( "f_cylinder", MathX.Lerp( GetAnimParameterFloat( "f_cylinder" ), TargetCylinderRotation/360f, 0.1f ) );
 
 			/*if ( Input.VR.IsKnuckles || Input.VR.IsRift )
 			{
