@@ -15,8 +15,14 @@ namespace rh
 		[Net, Predicted] public VRHand LH { get; set; }
 		[Net, Predicted] public VRHand RH { get; set; }
 
+		[Net] public Transform Head { get; set; }
+
 		[Net, Predicted] int RotatedTick { get; set; }
 		[Net, Predicted] bool JustRotated { get; set; }
+
+		[Net, Predicted] public VRHead HeadEnt { get; set; }
+
+		[Net] public RespawnCage cage { get; set; }
 
 		public override void Spawn()
 		{
@@ -27,15 +33,20 @@ namespace rh
 		{
 			base.Simulate( cl );
 
-			if ( Input.VR.IsActive )
+			if ( Input.VR.IsActive && cl == Client )
 			{
 
 				if ( RH != null )
 				{
-					if ( cl.Pawn is Pawn pawn )
+					if ( cl.Pawn is Pawn pawn && !cage.IsValid() )
 					{
 						VR.Anchor = Transform;
 						Transform = pawn.Transform.WithRotation( Rotation );
+					}
+					else if ( cl.Pawn is Pawn pawn2 && cage.IsValid() )
+					{
+						VR.Anchor = Transform;
+						Transform = cage.Transform.WithRotation( Rotation );
 					}
 
 					HandleHands();
@@ -43,40 +54,67 @@ namespace rh
 				else if ( IsServer )
 				{
 					LH = new VRHand();
-					LH.Owner = Owner;
+					LH.Owner = this;
 					LH.hand = HandSide.Left;
 					RH = new VRHand();
-					RH.Owner = Owner;
+					RH.Owner = this;
 					RH.hand = HandSide.Right;
+
+					/*LH.SetParent( this );
+					RH.SetParent( this );
+					HeadEnt.SetParent( this );*/
+
+					HeadEnt = new VRHead();
+					HeadEnt.Owner = Owner;
+					HeadEnt.VRPlayerEnt = this;
 				}
 
-				Vector3 RightJoy = Input.VR.RightHand.Joystick.Value;
+				Head = Input.VR.Head;
 
-				if ( RightJoy.x > 0.5f && !JustRotated && MathF.Abs( RotatedTick - Time.Tick ) > 240 )
+
+				if ( Input.VR.RightHand.ButtonA.WasPressed && !JustRotated )
 				{
 					RotatedTick = Time.Tick;
 					JustRotated = true;
-					Rotation *= new Angles( 0f, -45, 0f ).ToRotation();
+					Rotation *= new Angles( 0f, -22.5f, 0f ).ToRotation();
 
 				}
 
-				if ( RightJoy.x < -0.5f && !JustRotated && MathF.Abs( RotatedTick - Time.Tick ) > 240 )
+				if ( Input.VR.LeftHand.ButtonA.WasPressed && !JustRotated )
 				{
 					RotatedTick = Time.Tick;
 					JustRotated = true;
-					Rotation *= new Angles( 0f, 45, 0f ).ToRotation();
+					Rotation *= new Angles( 0f, 22.5f, 0f ).ToRotation();
 				}
 
-				if ( RightJoy.x < 0.5f && RightJoy.x > -0.5f && JustRotated )
+				if ( !Input.VR.RightHand.ButtonA.WasPressed && !Input.VR.LeftHand.ButtonA.WasPressed && JustRotated )
 				{
 					RotatedTick = 0;
 					JustRotated = false;
 				}
 			}
 		}
+
+		[ConCmd.Client("rh_reviveplayer")]
+		public void RevivePlayer(string name)
+		{
+			(FindByName( name ) as VRPlayer).HeadEnt.HitPoints = 2;
+			(FindByName( name ) as VRPlayer).cage.UsedCage = true;
+			(FindByName( name ) as VRPlayer).cage = null;
+		}
+
 		public override void FrameSimulate( Client cl )
 		{
 			base.FrameSimulate( cl );
+
+			if ( cl == Client )
+			{
+				if ( cl.Pawn is Pawn pawn )
+				{
+					VR.Anchor = Transform;
+					Transform = pawn.Transform.WithRotation( Rotation );
+				}
+			}
 		}
 
 		public void HandleHands()

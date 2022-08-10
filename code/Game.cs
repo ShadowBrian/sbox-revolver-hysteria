@@ -17,13 +17,16 @@ namespace rh;
 /// You can use this to create things like HUDs and declare which player class
 /// to use for spawned players.
 /// </summary>
-public partial class MyGame : Sandbox.Game
+public partial class RevolverHysteriaGame : Sandbox.Game
 {
-	public MyGame()
+	public RevolverHysteriaGame()
 	{
-
+		Global.TickRate = 120;
 	}
-	[Net] List<VRPlayer> VRPlayers { get; set; }
+
+	[Net] public List<VRPlayer> VRPlayers { get; set; }
+
+	[Net] public PlayerPlatform platform { get; set; }
 
 	/// <summary>
 	/// A client has joined the server. Make them a pawn to play with
@@ -44,9 +47,24 @@ public partial class MyGame : Sandbox.Game
 
 			var pawn = new Pawn();
 			client.Pawn = pawn;
+			pawn.PlayerIndex = VRPlayers.IndexOf( VRRig ) + 1;
+
+			VRRig.Owner = pawn;
+
+			platform = All.OfType<PlayerPlatform>().FirstOrDefault();
+
+			if ( platform != null )
+			{
+				pawn.platform = platform;
+				if ( platform.GetAttachment( "player" + (VRPlayers.IndexOf( VRRig ) + 1) ).HasValue )
+				{
+					var tx = platform.GetAttachment( "player" + (VRPlayers.IndexOf( VRRig ) + 1) ).Value;
+					pawn.Transform = tx;
+				}
+			}
 
 			// Get all of the spawnpoints
-			var spawnpoints = Entity.All.OfType<SpawnPoint>();
+			/*var spawnpoints = Entity.All.OfType<SpawnPoint>();
 
 			// chose a random one
 			var randomSpawnPoint = spawnpoints.OrderBy( x => Guid.NewGuid() ).FirstOrDefault();
@@ -57,7 +75,7 @@ public partial class MyGame : Sandbox.Game
 				var tx = randomSpawnPoint.Transform;
 				tx.Position = tx.Position + Vector3.Up * 50.0f; // raise it up
 				pawn.Transform = tx;
-			}
+			}*/
 		}
 	}
 
@@ -68,6 +86,16 @@ public partial class MyGame : Sandbox.Game
 		foreach ( var vrplayer in VRPlayers )
 		{
 			vrplayer.Simulate( cl );
+		}
+	}
+
+	public override void FrameSimulate( Client cl )
+	{
+		base.FrameSimulate( cl );
+
+		foreach ( var vrplayer in VRPlayers )
+		{
+			vrplayer.FrameSimulate( cl );
 		}
 	}
 

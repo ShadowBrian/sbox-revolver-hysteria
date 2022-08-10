@@ -1,0 +1,19 @@
+<!-- kv3 encoding:text:version{e21c7f3c-8a33-41c5-9977-a76d3a32aa0d} format:generic:version{7412167c-06e9-4698-aff2-e63eb59037e7} -->
+{
+	data = 
+	{
+		Type = "Clothed"
+		MovementType = "Walking"
+		Rarity = "Rare"
+		WeaponType = "Unarmed"
+		Clothing = 
+		[
+			resource:"models/citizen_clothes/hair/hair_balding/hair_baldinggrey.clothing",
+			resource:"models/citizen_clothes/hair/moustache/moustache_grey.clothing",
+			resource:"models/citizen_clothes/shirt/flannel_shirt/variations/blue_shirt/blue_shirt.clothing",
+			resource:"models/citizen_clothes/jacket/brown_leather_jacket/brown_leather_jacket.clothing",
+			resource:"models/citizen_clothes/trousers/jeans/jeans.clothing",
+			resource:"models/citizen_clothes/shoes/sneakers/sneakers.clothing",
+		]
+	}
+}

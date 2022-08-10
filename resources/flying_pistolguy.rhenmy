@@ -1,0 +1,17 @@
+<!-- kv3 encoding:text:version{e21c7f3c-8a33-41c5-9977-a76d3a32aa0d} format:generic:version{7412167c-06e9-4698-aff2-e63eb59037e7} -->
+{
+	data = 
+	{
+		Type = "Clothed"
+		MovementType = "Walking"
+		Rarity = "Rare"
+		WeaponType = "Pistol"
+		Clothing = 
+		[
+			resource:"models/citizen_clothes/shoes/boots/army_boots.clothing",
+			resource:"models/citizen_clothes/shirt/army_shirt/army_shirt.clothing",
+			resource:"models/citizen_clothes/trousers/cargopants/cargo_pants_army.clothing",
+			resource:"models/citizen_clothes/hair/hair_longbrown/models/hair_longblack.clothing",
+		]
+	}
+}

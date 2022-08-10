@@ -1,0 +1,28 @@
+$accent: #383C3E;
+$accent-dark: #0D181A;
+
+$neutral: #B0B0B0;
+$neutral-dark: #B0B0B0;
+
+$stamina: #00EC00;
+$stamina-dark: #009700;
+
+$health: #DE0000;
+$health-dark: #9C0000;
+
+$backdrop-filter: blur( 10px );
+
+text, label {
+    font-family: Poppins;
+    // font-weight: 600;
+    font-weight: 900;
+    color: white;
+    font-size: 20px;
+}
+
+icon, iconpanel {
+    font-family: MaterialIconsRound;
+    color: white;
+    font-size: 20px;
+    width: 1280px;
+}

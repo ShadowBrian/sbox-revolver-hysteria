@@ -12,6 +12,12 @@ namespace rh
 	{
 		None, Left, Right
 	}
+
+	public enum HandPose
+	{
+		Revolver = 0,
+		Empty = 1
+	}
 	public partial class VRHand : AnimatedEntity
 	{
 
@@ -23,6 +29,24 @@ namespace rh
 		[Net] public float RingClamp { get; set; } = 1f;
 
 		[Net] public bool Initialized { get; set; }
+
+		[Net, Predicted] public WeaponBaseClass Gun { get; set; }
+
+		[Net] public ModelEntity Wristwatch { get; set; }
+
+		[Net] public ModelEntity Coin { get; set; }
+
+		[Net] public bool PutCoin { get; set; }
+
+		WristUI wristUI;
+		WristUI wristUI2;
+
+		public override void ClientSpawn()
+		{
+			base.ClientSpawn();
+			wristUI = new WristUI( false );
+			wristUI2 = new WristUI( true );
+		}
 
 		public override void Spawn()
 		{
@@ -45,12 +69,6 @@ namespace rh
 			RingClamp = 1f;
 		}
 
-		bool CycleBreak;
-
-		bool JustFired;
-
-		float TargetCylinderRotation;
-
 		public void HandleHand()
 		{
 			if ( hand == HandSide.None )
@@ -62,10 +80,27 @@ namespace rh
 				switch ( hand )
 				{
 					case HandSide.Left:
-						SetModel( "models/revolver/revolver.vmdl" );
+						Gun = new Revolver();
+						Gun.Owner = Owner;
+						Gun.HandEnt = this;
+
+						Gun.EnableDrawing = false;
+
+						Coin = new ModelEntity( "models/player/token.vmdl" );
+						Coin.SetParent( this, true );
+
+						SetModel( "models/player/vrhand_revolver_left.vmdl" );
+
+						Wristwatch = new ModelEntity( "models/player/wristwatch.vmdl" );
+						Wristwatch.SetParent( this, true );
+						Wristwatch.LocalRotation *= new Angles( 0, 90, 0 ).ToRotation();
 						break;
 					case HandSide.Right:
-						SetModel( "models/revolver/revolver.vmdl" );
+						Gun = new Revolver();
+						Gun.Owner = Owner;
+						Gun.HandEnt = this;
+
+						SetModel( "models/player/vrhand_revolver_right.vmdl" );
 						break;
 					default:
 						break;
@@ -74,7 +109,33 @@ namespace rh
 				Initialized = true;
 			}
 
-			Input.VrHand vrhand = Input.VR.LeftHand;
+			if ( IsClient && wristUI != null && Wristwatch != null )
+			{
+				wristUI.Wristwatch = Wristwatch;
+				wristUI2.Wristwatch = Wristwatch;
+			}
+
+			Gun.UpdateGun();
+
+			bool ShowGun = !(Owner as VRPlayer).cage.IsValid() && ((Owner as VRPlayer).Owner as Pawn).platform.GameHasStarted;
+
+			if(hand == HandSide.Left )
+			{
+				Gun.EnableDrawing = PutCoin && ShowGun;
+				Coin.EnableDrawing = !PutCoin;
+				SetAnimParameter( "handpose", (int)((Gun.EnableDrawing || Coin.EnableDrawing) ? HandPose.Revolver : HandPose.Empty) );
+			}
+			else
+			{
+				Gun.EnableDrawing = ShowGun;
+				SetAnimParameter( "handpose", (int)(Gun.EnableDrawing ? HandPose.Revolver : HandPose.Empty) );
+			}
+
+			EnableHideInFirstPerson = CurrentView.Viewer == Client;
+
+			//DebugOverlay.Line( Position, Position + Vector3.Up );
+
+			var vrhand = Input.VR.LeftHand;
 
 			switch ( hand )
 			{
@@ -88,65 +149,32 @@ namespace rh
 					break;
 			}
 
-			Transform = vrhand.Transform;//.WithScale( 0.8f );
 
-			Rotation = vrhand.Transform.Rotation * new Angles( 45, 0, 0 ).ToRotation();
+			if ( Input.VR.IsKnuckles || Input.VR.IsRift )
+			{
+				SetAnimParameter( "Thumb", Coin!= null && Coin.EnableDrawing ? 0f : vrhand.GetFingerValue( FingerValue.ThumbCurl ) );
+				SetAnimParameter( "Index", Coin != null && Coin.EnableDrawing ? 0f : vrhand.GetFingerValue( FingerValue.IndexCurl ) );
+				SetAnimParameter( "Middle", vrhand.GetFingerValue( FingerValue.MiddleCurl ) );
+				SetAnimParameter( "Ring", vrhand.GetFingerValue( FingerValue.RingCurl ) );
+			}
+			else
+			{
+				SetAnimParameter( "Thumb", 1f );
+				SetAnimParameter( "Index", 1f );
+				SetAnimParameter( "Middle", vrhand.Grip.Value );
+				SetAnimParameter( "Ring", 1f );
+			}
 
-			Position = vrhand.Transform.Position - vrhand.Transform.Rotation.Forward * 5f;
+			Transform = vrhand.Transform.WithScale( 0.75f );
 
-			SetAnimParameter( "b_open", vrhand.ButtonB.WasPressed || vrhand.JoystickPress.WasPressed);
+			Rotation = vrhand.Transform.Rotation * new Angles( 0, 0, 0 ).ToRotation() * new Angles( -10f * Gun.TiltRecoil, 0, 0 ).ToRotation();
 
-			SetAnimParameter( "b_close", vrhand.Velocity.z > 100f );
-
-			SetAnimParameter( "f_zvel", MathX.Lerp(GetAnimParameterFloat("f_zvel"), -vrhand.Velocity.z, 0.1f));
+			Position = vrhand.Transform.Position - vrhand.Transform.Rotation.Forward * 3.6f + Rotation.Backward * Gun.BackRecoil + Rotation.Up * Gun.UpRecoil;
 
 			SetAnimParameter( "f_trigger", vrhand.Trigger.Value );
 
-			if(vrhand.Trigger.Value >= 0.95f )
-			{
-				CycleBreak = true;
-			}
+			SetAnimParameter( "f_hammer", -vrhand.Joystick.Value.y - ((Gun as Revolver).OpenCylinder ? 1f : 0f) );
 
-			if ( vrhand.Trigger.Value <= 0.1f )
-			{
-				CycleBreak = false;
-				JustFired = false;
-			}
-
-			if (!CycleBreak)
-			{
-				SetAnimParameter( "f_hammer", MathF.Max( vrhand.Trigger.Value, -vrhand.Joystick.Value.y ) );
-			}
-			else
-			{
-				SetAnimParameter( "f_hammer", 1f );
-				if(!JustFired )
-				{
-					JustFired = true;
-					TargetCylinderRotation += 60f;
-					/*if(TargetCylinderRotation > 360 )
-					{
-						TargetCylinderRotation = 0f;
-					}*/
-				}
-			}
-
-			SetAnimParameter( "f_cylinder", MathX.Lerp( GetAnimParameterFloat( "f_cylinder" ), TargetCylinderRotation/360f, 0.1f ) );
-
-			/*if ( Input.VR.IsKnuckles || Input.VR.IsRift )
-			{
-				SetAnimParameter( "Thumb", MathX.Clamp( vrhand.GetFingerValue( FingerValue.ThumbCurl ), 0f, ThumbClamp ) );
-				SetAnimParameter( "Index", MathX.Clamp( vrhand.GetFingerValue( FingerValue.IndexCurl ), 0f, IndexClamp ) );
-				SetAnimParameter( "Middle", MathX.Clamp( vrhand.GetFingerValue( FingerValue.MiddleCurl ), 0f, MiddleClamp ) );
-				SetAnimParameter( "Ring", MathX.Clamp( vrhand.GetFingerValue( FingerValue.RingCurl ), 0f, RingClamp ) );
-			}
-			else
-			{
-				SetAnimParameter( "Thumb", MathX.Clamp( (vrhand.ButtonA.IsPressed || vrhand.ButtonB.IsPressed) ? 1f : 0f, 0f, ThumbClamp ) );
-				SetAnimParameter( "Index", MathX.Clamp( vrhand.Trigger.Value, 0f, IndexClamp ) );
-				SetAnimParameter( "Middle", MathX.Clamp( vrhand.Grip.Value, 0f, MiddleClamp ) );
-				SetAnimParameter( "Ring", MathX.Clamp( vrhand.Grip.Value, 0f, RingClamp ) );
-			}*/
 		}
 	}
 }

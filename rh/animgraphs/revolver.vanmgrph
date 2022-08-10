@@ -15,7 +15,7 @@
 				{
 					_class = "CAddAnimNode"
 					m_sName = "Unnamed"
-					m_vecPosition = [ 240.0, -80.0 ]
+					m_vecPosition = [ 304.0, -80.0 ]
 					m_nNodeID = 
 					{
 						m_id = 59674232
@@ -212,7 +212,7 @@
 				{
 					_class = "CSequenceAnimNode"
 					m_sName = "Unnamed"
-					m_vecPosition = [ -64.0, 208.0 ]
+					m_vecPosition = [ 272.0, 112.0 ]
 					m_nNodeID = 
 					{
 						m_id = 630953883
@@ -424,8 +424,13 @@
 									m_bDisabled = false
 								},
 							]
-							m_tags = [  ]
-							m_tagBehaviors = [  ]
+							m_tags = 
+							[
+								{
+									m_id = 185957957
+								},
+							]
+							m_tagBehaviors = [ 0 ]
 							m_name = "open"
 							m_inputConnection = 
 							{
@@ -534,8 +539,8 @@
 					}
 					m_networkMode = "ClientPredicted"
 					m_sNote = ""
-					m_sequenceName = "open"
-					m_nFrameIndex = 7
+					m_sequenceName = "close"
+					m_nFrameIndex = 6
 					m_tagSpans = [  ]
 				}
 			},
@@ -635,7 +640,7 @@
 				{
 					_class = "CCycleControlAnimNode"
 					m_sName = "Unnamed"
-					m_vecPosition = [ 128.000015, 208.0 ]
+					m_vecPosition = [ 448.0, 112.0 ]
 					m_nNodeID = 
 					{
 						m_id = 1299181925
@@ -703,7 +708,7 @@
 				{
 					_class = "CRootAnimNode"
 					m_sName = "Unnamed"
-					m_vecPosition = [ 656.0, -80.0 ]
+					m_vecPosition = [ 976.0, -80.0 ]
 					m_nNodeID = 
 					{
 						m_id = 1441419757
@@ -754,7 +759,7 @@
 				{
 					_class = "CAddAnimNode"
 					m_sName = "Unnamed"
-					m_vecPosition = [ 448.0, -80.0 ]
+					m_vecPosition = [ 688.0, -80.0 ]
 					m_nNodeID = 
 					{
 						m_id = 1884374426
@@ -899,7 +904,18 @@
 	m_pTagManager = 
 	{
 		_class = "CAnimTagManager"
-		m_tags = [  ]
+		m_tags = 
+		[
+			{
+				_class = "CTaskStatusAnimTag"
+				m_name = "open"
+				m_tagID = 
+				{
+					m_id = 185957957
+				}
+				m_identifierString = ""
+			},
+		]
 	}
 	m_pMovementManager = 
 	{
