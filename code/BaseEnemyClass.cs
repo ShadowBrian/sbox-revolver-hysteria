@@ -42,9 +42,13 @@ namespace rh
 
 		[Net] public EnemyResource enemyResource { get; set; }
 
+		List<Vector3> MovementhPath { get; set; } = new List<Vector3>();
+
+		[Net] int CurrentPoint { get; set; } = 0;
+
 		public static BaseEnemyClass FromPath( string assetPath )
 		{
-			var enemyAsset = ResourceLibrary.Get<EnemyResource>( "resources/" + assetPath );
+			var enemyAsset = ResourceLibrary.Get<EnemyResource>( assetPath );
 
 			var enemy = new BaseEnemyClass();
 
@@ -183,6 +187,14 @@ namespace rh
 		public void PickRandomTarget()
 		{
 			ChosenShootTarget = Rand.Int( 1, 4 );
+			if ( (Game.Current as RevolverHysteriaGame).VRPlayers[(ChosenShootTarget - 1) % (Game.Current as RevolverHysteriaGame).VRPlayers.Count].HeadEnt.HitPoints <= 0 )
+			{
+				ChosenShootTarget += 1;
+				if(ChosenShootTarget > 4 )
+				{
+					ChosenShootTarget = 1;
+				}
+			}
 		}
 
 		enum EnemyActionStates
@@ -278,7 +290,7 @@ namespace rh
 					{
 						if ( ChosenShootTarget <= (Game.Current as RevolverHysteriaGame).VRPlayers.Count )
 						{
-							(Game.Current as RevolverHysteriaGame).VRPlayers[ChosenShootTarget - 1].HeadEnt.TakeMeleeDamage();
+							(Game.Current as RevolverHysteriaGame).VRPlayers[ChosenShootTarget - 1 % 4].HeadEnt.TakeMeleeDamage();
 						}
 						DeleteAsync( 0.5f );
 						break;
@@ -338,6 +350,28 @@ namespace rh
 			}
 		}
 
+		public void ProcessPath()
+		{
+			/*for ( int i = 0; i < MovementhPath.Count - 1; i++ )
+			{
+				DebugOverlay.Line( MovementhPath[i], MovementhPath[i + 1], Color.Red );
+				DebugOverlay.Line( MovementhPath[i], MovementhPath[i] + Vector3.Up * 10f, Color.Red );
+			}*/
+
+			if ( Vector3.DistanceBetween( Position, MovementhPath[CurrentPoint] ) < 11f && CurrentPoint < MovementhPath.Count - 1 )
+			{
+				CurrentPoint++;
+			}
+			else
+			{
+				MovementhPath.Clear();
+				CurrentPoint = 0;
+				usingPath = false;
+			}
+		}
+
+		[Net] bool usingPath { get; set; } = false;
+
 		[Event.Tick.Server]
 		public void Tick()
 		{
@@ -354,7 +388,7 @@ namespace rh
 
 			helper = new CitizenAnimationHelper( this );
 
-			if ( ChosenShootTarget <= (Game.Current as RevolverHysteriaGame).VRPlayers.Count )
+			if ( ChosenShootTarget <= (Game.Current as RevolverHysteriaGame).VRPlayers.Count && (Game.Current as RevolverHysteriaGame).VRPlayers[ChosenShootTarget - 1].HeadEnt.HitPoints > 0)
 			{
 				LookDir = (Game.Current as RevolverHysteriaGame).VRPlayers[ChosenShootTarget - 1].HeadEnt.Position;//- Vector3.Up * 50f * Scale
 
@@ -395,7 +429,10 @@ namespace rh
 
 			if ( FlyingType )
 			{
-				TargetDestination = TargetDestination.WithZ( platform.Position.z + 100f );
+				if ( !usingPath )
+				{
+					TargetDestination = TargetDestination.WithZ( platform.Position.z + 100f );
+				}
 			}
 
 			Rotation = Rotation.LookAt( (LookDir - Position).WithZ( 0 ) );
@@ -408,14 +445,69 @@ namespace rh
 				Velocity += -Vector3.Up * 400f;
 			}
 
-			if ( Vector3.DistanceBetween( Position, TargetDestination ) > 10f )
+
+			if ( MovementhPath.Count == 0 )
 			{
-				Velocity = -(Position - TargetDestination).Normal * 150f;
-				InputVelocity = -(Position - TargetDestination).Normal * 150f;
+				NavPathBuilder builder = NavMesh.PathBuilder( Position );
+				NavPath path = builder.Build( TargetDestination );
+				if ( path != null && path.Segments != null && path.Segments.Count > 1 )
+				{
+					foreach ( NavPathSegment seg in path.Segments )
+					{
+						MovementhPath.Add( seg.Position );
+					}
+				}
+				else
+				{
+					MovementhPath.Clear();
+				}
+			}
+
+			usingPath = MovementhPath.Count > 0;
+
+			if ( !usingPath )
+			{
+
+				if ( Vector3.DistanceBetween( Position, TargetDestination ) > 10f )
+				{
+					Velocity = -(Position - TargetDestination).Normal * 150f;
+					InputVelocity = -(Position - TargetDestination).Normal * 150f;
+				}
+				else
+				{
+					Velocity = Vector3.Zero;
+				}
 			}
 			else
 			{
-				Velocity = Vector3.Zero;
+				ProcessPath();
+				if ( CurrentPoint <= MovementhPath.Count - 1 )
+				{
+					Vector3 GoPath = MovementhPath[CurrentPoint];
+
+					if (enemyResource.MovementType == EnemyMovementType.Flying )
+					{
+						GoPath = GoPath.WithZ( platform.Position.z + 100f );
+					}
+
+					//DebugOverlay.Sphere( GoPath, 10f, Color.Green );
+
+					if ( Vector3.DistanceBetween( Position, GoPath ) > 10f )
+					{
+						Velocity = -(Position - GoPath).Normal * 150f;
+						InputVelocity = -(Position - GoPath).Normal * 150f;
+					}
+					else
+					{
+						Velocity = Vector3.Zero;
+					}
+				}
+				else
+				{
+					MovementhPath.Clear();
+					CurrentPoint = 0;
+					usingPath = false;
+				}
 			}
 
 			Move( Time.Delta );

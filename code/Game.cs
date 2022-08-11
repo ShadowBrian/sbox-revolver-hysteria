@@ -53,12 +53,20 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 
 			platform = All.OfType<PlayerPlatform>().FirstOrDefault();
 
-			if ( platform != null )
+			if ( platform != null && VRPlayers.IndexOf( VRRig ) < 4)
 			{
 				pawn.platform = platform;
 				if ( platform.GetAttachment( "player" + (VRPlayers.IndexOf( VRRig ) + 1) ).HasValue )
 				{
 					var tx = platform.GetAttachment( "player" + (VRPlayers.IndexOf( VRRig ) + 1) ).Value;
+					pawn.Transform = tx;
+				}
+			}
+			else
+			{
+				if ( platform.GetAttachment( "player" +((VRPlayers.IndexOf( VRRig ) + 1)-4) ).HasValue )
+				{
+					var tx = platform.GetAttachment( "player" + ((VRPlayers.IndexOf( VRRig ) + 1)-4) ).Value;
 					pawn.Transform = tx;
 				}
 			}
@@ -77,15 +85,102 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 				pawn.Transform = tx;
 			}*/
 		}
+
+		if ( !client.IsUsingVr )
+		{
+
+			var pawn = new FlatPawn();
+			client.Pawn = pawn;
+
+			platform = All.OfType<PlayerPlatform>().FirstOrDefault();
+
+			if ( platform != null )
+			{
+
+				pawn.Position = platform.Position + platform.Rotation.Forward * 100f + Vector3.Up * 40f;
+				pawn.Rotation = Rotation.LookAt( pawn.Position - platform.Position );
+
+			}
+			else
+			{
+				pawn.Position = Vector3.Up * 64f;
+			}
+		}
 	}
+
+	public override void ClientDisconnect( Client cl, NetworkDisconnectionReason reason )
+	{
+		base.ClientDisconnect( cl, reason );
+		for ( int i = 0; i < VRPlayers.Count; i++ )
+		{
+			if(VRPlayers[i].Client == cl )
+			{
+				VRPlayers[i].LH.Delete();
+				VRPlayers[i].RH.Delete();
+				VRPlayers[i].HeadEnt.Delete();
+				VRPlayers[i].Delete();
+				VRPlayers.RemoveAt( i );
+				break;
+			}
+		}
+	}
+
+	[Net] bool EndTriggered { get; set; } = false;
+	[Net] TimeSince TimeSinceEnded { get; set; }
+
+	[Net] bool FirstPlayerArrived { get; set; }
+
+	[Net] TimeSince TimeSinceFirstPlayer { get; set; }
 
 	public override void Simulate( Client cl )
 	{
 		base.Simulate( cl );
 
+		int deadplayers = 0;
+
+		if(VRPlayers.Count > 0 && !FirstPlayerArrived)
+		{
+			TimeSinceFirstPlayer = 0f;
+			FirstPlayerArrived = true;
+		}
+
+		if (!FirstPlayerArrived || TimeSinceFirstPlayer < 0.5f)
+		{
+			return;
+		}
+
 		foreach ( var vrplayer in VRPlayers )
 		{
 			vrplayer.Simulate( cl );
+			if ( vrplayer.HeadEnt.IsValid() && vrplayer.HeadEnt.HitPoints <= 0)
+			{
+				deadplayers++;
+			}
+		}
+
+		if ( deadplayers == VRPlayers.Count && platform.GameHasStarted && VRPlayers.Count > 0 && IsServer && !EndTriggered)
+		{
+			TimeSinceEnded = 0f;
+			foreach ( var vrplayer in VRPlayers )
+			{
+				GameServices.SubmitScore( vrplayer.Client.PlayerId, vrplayer.Client.GetInt( "score" ) );
+			}
+			EndTriggered = true;
+		}
+
+		if(EndTriggered && TimeSinceEnded > 10f && IsServer )
+		{
+			Global.ChangeLevel( Global.MapName );
+		}
+
+
+		if ( EndTriggered && TimeSinceEnded < 10f && IsClient)
+		{
+			foreach ( var vrplayer in VRPlayers )
+			{
+				vrplayer.Simulate( cl );
+				vrplayer.HeadEnt.ShowDeathScreen();
+			}
 		}
 	}
 

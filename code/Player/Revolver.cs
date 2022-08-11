@@ -14,7 +14,7 @@ namespace rh
 
 		bool JustFired;
 
-		float TargetCylinderRotation;
+		[Net] float TargetCylinderRotation { get; set; }
 
 		bool Opening, Closing;
 
@@ -68,6 +68,12 @@ namespace rh
 
 			Position = vrhand.Transform.Position - vrhand.Transform.Rotation.Forward * 5f + Rotation.Backward * BackRecoil + Rotation.Up * UpRecoil;
 
+			if ( IsClientOnly )
+			{ 
+				Delete();
+			}
+
+
 			TiltRecoil = MathX.Lerp( TiltRecoil, 0f, 0.5f );
 			BackRecoil = MathX.Lerp( BackRecoil, 0f, 0.4f );
 			UpRecoil = MathX.Lerp( UpRecoil, 0f, 0.4f );
@@ -80,7 +86,6 @@ namespace rh
 			{
 				OpenCylinder = true;
 				PlaySound( "revolver_open" );
-				//AmmoLeft = 0;
 			}
 
 			if ( Closing && OpenCylinder )

@@ -9,13 +9,17 @@ namespace rh
 {
 	public partial class VRHead : ModelEntity
 	{
-		[Net] public int HitPoints { get; set; } = 5;
+		[Net,Predicted] public int HitPoints { get; set; } = 5;
 
 		ModelEntity RedPostEnt { get; set; }
 
 		ModelEntity GreenPostEnt { get; set; }
 
 		[Net] public Entity VRPlayerEnt { get; set; }
+
+		[Net] public AnimatedEntity HeadModel { get; set; }
+
+		[Net, Predicted] public bool HeadDressed { get; set; }
 
 		float RedAlpha, GreenAlpha;
 
@@ -24,21 +28,85 @@ namespace rh
 			base.Spawn();
 			Capsule cap = new Capsule( Position, Position - Rotation.Up * 50f, 12.5f );
 			SetupPhysicsFromCapsule( PhysicsMotionType.Keyframed, cap ).SetSurface( "flesh" );
+			Tags.Add( "player" );
 			Transform = Input.VR.Head;
+			HeadModel = new AnimatedEntity( "models/player/vrhead.vmdl" );
+			HeadModel.Owner = this;
+			HeadModel.Position = Position;
+			HeadModel.Position += HeadModel.Rotation.Forward * 100f;
+			HeadModel.Rotation = Rotation;
 		}
 
-		[Event.Tick]
-		public void Tick()
+		public void HandleHead()
 		{
-			if ( VRPlayerEnt == null )
+			if ( VRPlayerEnt == null)
 			{
 				return;
 			}
 			Position = Input.VR.Head.Position - Input.VR.Head.Rotation.Forward * 10f;
 			Rotation = Rotation.LookAt( Input.VR.Head.Rotation.Forward.WithY( 0 ) );
+
+
+			if ( HeadModel != null && this.IsValid())
+			{
+				HeadModel.Position = Input.VR.Head.Position;
+				HeadModel.Scale = 0.75f;
+				//HeadModel.Position += Input.VR.Head.Rotation.Forward * 100f;
+
+				HeadModel.Rotation = Input.VR.Head.Rotation;// * new Angles(0,180,0).ToRotation();
+
+				if ( IsClient )
+				{
+					HeadModel.EnableDrawing = false;
+
+					foreach ( var item in ClothingEntities )
+					{
+						item.EnableDrawing = HeadModel.EnableDrawing;
+					}
+				}
+			}
 			//DebugOverlay.Sphere( Position - Rotation.Forward * 10f, 10f, Color.Red );
 			//DebugOverlay.Sphere( Position - Rotation.Forward * 10f - Rotation.Up * 50f, 10f, Color.Red );
+
+
+			if ( !HeadDressed )
+			{
+				Clothing ??= new();
+				Clothing.LoadFromClient( Owner.Client );
+
+				HeadOnly ??= new();
+
+				foreach ( var item in Clothing.Clothing )
+				{
+					if ( item.Category == Sandbox.Clothing.ClothingCategory.Facial || item.Category == Sandbox.Clothing.ClothingCategory.Hair || item.Category == Sandbox.Clothing.ClothingCategory.Skin || item.Category == Sandbox.Clothing.ClothingCategory.Hat )
+					{
+						HeadOnly.Clothing.Add( item );
+					}
+
+					if ( item.Category == Sandbox.Clothing.ClothingCategory.Skin )
+					{
+						(VRPlayerEnt as VRPlayer).LH.skintone = item;
+						(VRPlayerEnt as VRPlayer).RH.skintone = item;
+					}
+				}
+
+				HeadOnly.DressEntity( HeadModel );
+
+				foreach ( var item in HeadModel.Children )
+				{
+					if ( item.Tags.Has( "clothing" ) )
+					{
+						ClothingEntities.Add( item as ModelEntity );
+					}
+				}
+
+				HeadDressed = true;
+			}
 		}
+
+		ClothingContainer Clothing, HeadOnly;
+
+		List<ModelEntity> ClothingEntities = new List<ModelEntity>();
 
 		[Event.Frame]
 		public void Frame()
@@ -56,16 +124,24 @@ namespace rh
 			}
 		}
 
-		public void AddHealth()
+		public void AddHealth(long TargetPlayer)
 		{
 			HitPoints++;
-			DoPostFXGreen();
+			if ( TargetPlayer == Local.PlayerId )
+			{
+				DoPostFXGreen();
+			}
 		}
 
 		[ClientRpc]
 		public void DoPostFXGreen()
 		{
 			GreenFade();
+		}
+
+		public void ShowDeathScreen()
+		{
+			RedAlpha = 0.5f;
 		}
 
 		public async Task GreenFade()
@@ -86,9 +162,12 @@ namespace rh
 
 
 		[ClientRpc]
-		public void DoPostFXRed()
+		public void DoPostFXRed(long player)
 		{
-			RedFade();
+			if ( player == Local.PlayerId )
+			{
+				RedFade();
+			}
 		}
 
 		public async Task RedFade()
@@ -112,7 +191,22 @@ namespace rh
 			{
 				HitPoints--;
 
-				DoPostFXRed();
+				DoPostFXRed(Local.PlayerId);
+			}
+			if ( HitPoints <= 0 )
+			{
+				GoIntoCage();
+			}
+		}
+		public override void TakeDamage( DamageInfo info )
+		{
+			base.TakeDamage( info );
+
+			if ( HitPoints > 0 )
+			{
+				HitPoints--;
+
+				DoPostFXRed(Local.PlayerId);
 			}
 			if ( HitPoints <= 0 )
 			{
@@ -146,27 +240,14 @@ namespace rh
 				}
 			}
 
-
 			if ( chosencage != null )
 			{
 				(VRPlayerEnt as VRPlayer).cage = chosencage;
 				chosencage.OccupyingPlayer = (VRPlayerEnt as VRPlayer);
+				chosencage.UsedCage = true;
 			}
+
 		}
 
-		public override void TakeDamage( DamageInfo info )
-		{
-			base.TakeDamage( info );
-			if ( HitPoints > 0 )
-			{
-				HitPoints--;
-
-				DoPostFXRed();
-			}
-			if ( HitPoints <= 0 )
-			{
-				GoIntoCage();
-			}
-		}
 	}
 }

@@ -23,6 +23,8 @@ namespace rh
 
 		[Net] public HandSide hand { get; set; }
 
+		[Net] public Clothing skintone { get; set; }
+
 		[Net] public float ThumbClamp { get; set; } = 1f;
 		[Net] public float IndexClamp { get; set; } = 1f;
 		[Net] public float MiddleClamp { get; set; } = 1f;
@@ -69,6 +71,8 @@ namespace rh
 			RingClamp = 1f;
 		}
 
+		[Net] bool dressedHand { get; set; }
+
 		public void HandleHand()
 		{
 			if ( hand == HandSide.None )
@@ -87,6 +91,10 @@ namespace rh
 						Gun.EnableDrawing = false;
 
 						Coin = new ModelEntity( "models/player/token.vmdl" );
+						if ( !Coin.IsValid() )
+						{
+							return;
+						}
 						Coin.SetParent( this, true );
 
 						SetModel( "models/player/vrhand_revolver_left.vmdl" );
@@ -115,11 +123,19 @@ namespace rh
 				wristUI2.Wristwatch = Wristwatch;
 			}
 
+			if ( !dressedHand && skintone != null )
+			{
+				ClothingContainer container = new ClothingContainer();
+				container.Clothing.Add( skintone );
+				container.DressEntity( this );
+				dressedHand = true;
+			}
+
 			Gun.UpdateGun();
 
-			bool ShowGun = !(Owner as VRPlayer).cage.IsValid() && ((Owner as VRPlayer).Owner as Pawn).platform.GameHasStarted;
+			bool ShowGun = !(Owner as VRPlayer).cage.IsValid();
 
-			if(hand == HandSide.Left )
+			if ( hand == HandSide.Left )
 			{
 				Gun.EnableDrawing = PutCoin && ShowGun;
 				Coin.EnableDrawing = !PutCoin;
@@ -152,7 +168,7 @@ namespace rh
 
 			if ( Input.VR.IsKnuckles || Input.VR.IsRift )
 			{
-				SetAnimParameter( "Thumb", Coin!= null && Coin.EnableDrawing ? 0f : vrhand.GetFingerValue( FingerValue.ThumbCurl ) );
+				SetAnimParameter( "Thumb", Coin != null && Coin.EnableDrawing ? 0f : vrhand.GetFingerValue( FingerValue.ThumbCurl ) );
 				SetAnimParameter( "Index", Coin != null && Coin.EnableDrawing ? 0f : vrhand.GetFingerValue( FingerValue.IndexCurl ) );
 				SetAnimParameter( "Middle", vrhand.GetFingerValue( FingerValue.MiddleCurl ) );
 				SetAnimParameter( "Ring", vrhand.GetFingerValue( FingerValue.RingCurl ) );

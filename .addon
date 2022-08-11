@@ -14,7 +14,7 @@
   "CodePath": "/code/",
   "RootNamespace": null,
   "Metadata": {
-    "MaxPlayers": 4,
+    "MaxPlayers": 8,
     "MinPlayers": 1,
     "GameNetworkType": "Multiplayer",
     "MapSelect": "Tagged",
@@ -71,6 +71,9 @@
           "r": "Collide"
         }
       ]
+    },
+    "ControlModes": {
+      "VR": true
     }
   }
 }

@@ -15,11 +15,66 @@
 						[
 							{
 								from = "citizen_skin1.vmat"
-								to = "models/citizen/skin/citizen_skin04.vmat"
+								to = "models/citizen/skin/citizen_skin01.vmat"
 							},
 						]
 						use_global_default = false
 						global_default_material = ""
+					},
+					{
+						_class = "MaterialGroup"
+						name = "Skin01"
+						remaps = 
+						[
+							{
+								from = "models/citizen/skin/citizen_skin04.vmat"
+								to = "models/citizen/skin/citizen_skin01.vmat"
+							},
+						]
+					},
+					{
+						_class = "MaterialGroup"
+						name = "Skin02"
+						remaps = 
+						[
+							{
+								from = "models/citizen/skin/citizen_skin04.vmat"
+								to = "models/citizen/skin/citizen_skin02.vmat"
+							},
+						]
+					},
+					{
+						_class = "MaterialGroup"
+						name = "Skin03"
+						remaps = 
+						[
+							{
+								from = "models/citizen/skin/citizen_skin04.vmat"
+								to = "models/citizen/skin/citizen_skin03.vmat"
+							},
+						]
+					},
+					{
+						_class = "MaterialGroup"
+						name = "Skin04"
+						remaps = 
+						[
+							{
+								from = "models/citizen/skin/citizen_skin04.vmat"
+								to = "models/citizen/skin/citizen_skin04.vmat"
+							},
+						]
+					},
+					{
+						_class = "MaterialGroup"
+						name = "Skin05"
+						remaps = 
+						[
+							{
+								from = "models/citizen/skin/citizen_skin04.vmat"
+								to = "models/citizen/skin/citizen_skin05.vmat"
+							},
+						]
 					},
 				]
 			},

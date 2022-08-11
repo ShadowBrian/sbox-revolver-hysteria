@@ -37,38 +37,40 @@ namespace rh
 		{
 			platform = All.OfType<PlayerPlatform>().FirstOrDefault();
 
-			foreach ( var file in FileSystem.Mounted.FindFile( "resources/", "*.rhenmy", true ) )
+			foreach ( var file in ResourceLibrary.GetAll<EnemyResource>() )
 			{
-				var asset = ResourceLibrary.Get<EnemyResource>( "resources/" + file );
-				if ( asset == null )
-					continue;
-				AllEnemies.Add( file );
-				if ( asset.Rarity == SpawnRarity.Common )
+				AllEnemies.Add( file.ResourcePath );
+				if ( file.Rarity == SpawnRarity.Common )
 				{
-					AllEnemies.Add( file );
-					AllEnemies.Add( file );
-					AllEnemies.Add( file );
-					AllEnemies.Add( file );
+					AllEnemies.Add( file.ResourcePath );
+					AllEnemies.Add( file.ResourcePath );
+					AllEnemies.Add( file.ResourcePath );
+					AllEnemies.Add( file.ResourcePath );
 				}
 
-				if ( asset.Rarity == SpawnRarity.Rare )
+				if ( file.Rarity == SpawnRarity.Rare )
 				{
-					AllEnemies.Add( file );
+					AllEnemies.Add( file.ResourcePath );
 				}
 
-				if ( asset.Rarity == SpawnRarity.Never )
+				if ( file.Rarity == SpawnRarity.Never )
 				{
-					AllEnemies.Remove( file );
+					AllEnemies.Remove( file.ResourcePath );
 				}
+
 			}
 		}
 
 		[Event.Tick.Server]
 		public void Tick()
 		{
+			if(platform == null )
+			{
+				return;
+			}
 			if ( platform.GameHasStarted && platform.currentnode == AssociatedNodeNumber )
 			{
-				if ( ActiveNPC == null && AllEnemies.Count > 0 && (spawnlimit == 0 || EnemiesSpawned < spawnlimit) )
+				if ( !ActiveNPC.IsValid() && AllEnemies.Count > 0 && (spawnlimit == 0 || EnemiesSpawned < spawnlimit) )
 				{
 					if ( enemytype == null )
 					{
@@ -76,7 +78,7 @@ namespace rh
 					}
 					else
 					{
-						ActiveNPC = BaseEnemyClass.FromPath( enemytype.Replace( "resources/", "" ) );
+						ActiveNPC = BaseEnemyClass.FromPath( enemytype );
 					}
 					EnemiesSpawned++;
 					ActiveNPC.Position = Position + Vector3.Up;

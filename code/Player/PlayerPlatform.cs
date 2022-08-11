@@ -19,7 +19,7 @@ namespace rh
 
 		[Net] public bool GameHasStarted { get; set; } = false;
 
-		[Net] public int currentnode { get; set; } = 0;
+		[Net, Predicted] public int currentnode { get; set; } = 0;
 
 		[Net] List<Coinslot> slots { get; set; } = new List<Coinslot>();
 
@@ -31,13 +31,24 @@ namespace rh
 
 			if ( GetAttachment( "slot1" ).HasValue )
 			{
-				for ( int i = 1; i < 5; i++ )
+				for ( int i = 1; i < (Game.Current as RevolverHysteriaGame).VRPlayers.Count + 1; i++ )
 				{
-					Coinslot slot = new Coinslot();
-					slot.Transform = GetAttachment( "slot" + i ).Value;
-					slot.SetParent( this, "slot" + i );
-					slot.PlayerIndex = i;
-					slots.Add( slot );
+					if ( i < 5 )
+					{
+						Coinslot slot = new Coinslot();
+						slot.Transform = GetAttachment( "slot" + i ).Value;
+						slot.SetParent( this, "slot" + i );
+						slot.PlayerIndex = i;
+						slots.Add( slot );
+					}
+					else
+					{
+						Coinslot slot = new Coinslot();
+						slot.Transform = GetAttachment( "slot" + (i - 4) ).Value;
+						slot.SetParent( this, "slot" + (i - 4) );
+						slot.PlayerIndex = i;
+						slots.Add( slot );
+					}
 				}
 			}
 			else
@@ -88,10 +99,11 @@ namespace rh
 
 				Position = Vector3.Lerp( Position, newpos, 0.5f );
 
-				if ( (Game.Current as RevolverHysteriaGame).VRPlayers.Count > 0 && PlayersReady >= (Game.Current as RevolverHysteriaGame).VRPlayers.Count )
+				if ( (Game.Current as RevolverHysteriaGame).VRPlayers.Count > 0 && (PlayersReady >= (Game.Current as RevolverHysteriaGame).VRPlayers.Count || PlayersReady == 4) )
 				{
 					GameHasStarted = true;
 					TimeSinceEndNode = 0f;
+					(pathent.PathNodes[currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).OnPassed.Fire( this );
 				}
 
 				return;
@@ -129,11 +141,15 @@ namespace rh
 				if ( movementProgress > 1f && TimeSinceEndNode > (pathent.PathNodes[currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).TimeToWait + (NodeTime / 120f) )
 				{
 					TimeSinceEndNode = 0f;
+
 					currentnode++;
 					if ( currentnode > pathent.PathNodes.Count - 1 )
 					{
 						currentnode = pathent.PathNodes.Count - 1;
 					}
+
+					(pathent.PathNodes[currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).OnPassed.Fire( this );
+
 					movementProgress = 0f;
 				}
 				if ( movementProgress < 1f && currentnode != pathent.PathNodes.Count - 1 )

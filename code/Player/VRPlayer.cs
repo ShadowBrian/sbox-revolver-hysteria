@@ -98,7 +98,7 @@ namespace rh
 		[ConCmd.Client("rh_reviveplayer")]
 		public void RevivePlayer(string name)
 		{
-			(FindByName( name ) as VRPlayer).HeadEnt.HitPoints = 2;
+			(FindByName( name ) as VRPlayer).HeadEnt.HitPoints = 5;
 			(FindByName( name ) as VRPlayer).cage.UsedCage = true;
 			(FindByName( name ) as VRPlayer).cage = null;
 		}
@@ -109,10 +109,15 @@ namespace rh
 
 			if ( cl == Client )
 			{
-				if ( cl.Pawn is Pawn pawn )
+				if ( cl.Pawn is Pawn pawn && !cage.IsValid() )
 				{
 					VR.Anchor = Transform;
 					Transform = pawn.Transform.WithRotation( Rotation );
+				}
+				else if ( cl.Pawn is Pawn pawn2 && cage.IsValid() )
+				{
+					VR.Anchor = Transform;
+					Transform = cage.Transform.WithRotation( Rotation );
 				}
 			}
 		}
@@ -121,6 +126,7 @@ namespace rh
 		{
 			LH.HandleHand();
 			RH.HandleHand();
+			HeadEnt.HandleHead();
 		}
 	}
 }

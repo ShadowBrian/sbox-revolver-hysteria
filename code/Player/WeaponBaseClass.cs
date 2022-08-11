@@ -40,7 +40,8 @@ namespace rh
 
 			var trace = Trace.Ray( start, end )
 					.UseHitboxes()
-					.WithAnyTags( "solid", "player", "npc" )
+					.WithAnyTags( "solid", "npc" )
+					.WithoutTags("player")
 					.Ignore( this )
 					.Size( radius );
 

@@ -20,7 +20,7 @@
 					{
 						m_id = 59674232
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_baseInput = 
 					{
@@ -66,7 +66,7 @@
 					{
 						m_id = 207614577
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_sequenceName = "open"
 					m_nFrameIndex = 11
@@ -87,7 +87,7 @@
 					{
 						m_id = 383989082
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_baseInput = 
 					{
@@ -133,7 +133,7 @@
 					{
 						m_id = 458492152
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_children = 
 					[
@@ -217,7 +217,7 @@
 					{
 						m_id = 630953883
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_tagSpans = [  ]
 					m_sequenceName = "cylinder_rotate"
@@ -239,7 +239,7 @@
 					{
 						m_id = 664835382
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_inputConnection = 
 					{
@@ -273,7 +273,7 @@
 					{
 						m_id = 712830607
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_states = 
 					[
@@ -381,7 +381,7 @@
 					{
 						m_id = 839196630
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_states = 
 					[
@@ -537,7 +537,7 @@
 					{
 						m_id = 947020920
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_sequenceName = "close"
 					m_nFrameIndex = 6
@@ -558,7 +558,7 @@
 					{
 						m_id = 1054352017
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_tagSpans = [  ]
 					m_sequenceName = "hammer"
@@ -580,7 +580,7 @@
 					{
 						m_id = 1066626168
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_sequenceName = "open"
 					m_nFrameIndex = 14
@@ -601,7 +601,7 @@
 					{
 						m_id = 1109362585
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_tagSpans = [  ]
 					m_sequenceName = "triggerpulled"
@@ -623,7 +623,7 @@
 					{
 						m_id = 1139895607
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_tagSpans = [  ]
 					m_sequenceName = "open"
@@ -645,7 +645,7 @@
 					{
 						m_id = 1299181925
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_inputConnection = 
 					{
@@ -679,7 +679,7 @@
 					{
 						m_id = 1379632711
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_inputConnection = 
 					{
@@ -713,7 +713,7 @@
 					{
 						m_id = 1441419757
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_inputConnection = 
 					{
@@ -742,7 +742,7 @@
 					{
 						m_id = 1796007987
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_tagSpans = [  ]
 					m_sequenceName = "close"
@@ -764,7 +764,7 @@
 					{
 						m_id = 1884374426
 					}
-					m_networkMode = "ClientPredicted"
+					m_networkMode = "ClientSimulate"
 					m_sNote = ""
 					m_baseInput = 
 					{
