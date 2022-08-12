@@ -173,7 +173,7 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 			}
 		}
 
-		if ( (deadplayers == VRPlayers.Count  && IsServer && ((platform.GameHasStarted && VRPlayers.Count > 0) || DebugMode)) || (platform.pathent.IsValid() && platform.currentnode == platform.pathent.PathNodes.Count-1 && IsServer) && !EndTriggered )
+		if ( (deadplayers == VRPlayers.Count  && IsServer && ((platform.GameHasStarted && VRPlayers.Count > 0) || DebugMode)) || (platform.pathent.IsValid() && (platform.currentnode == platform.pathent.PathNodes.Count-1 && !(platform.pathent.PathNodes[platform.currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).AlternativePathEnabled) && IsServer) && !EndTriggered )
 		{
 			TimeSinceEnded = 0f;
 			foreach ( var vrplayer in VRPlayers )
