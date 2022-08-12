@@ -9,7 +9,7 @@ namespace rh
 {
 	public partial class VRHead : ModelEntity
 	{
-		[Net, Predicted] public int HitPoints { get; set; } = 5;
+		[Net] public int HitPoints { get; set; } = 5;
 
 		ModelEntity RedPostEnt { get; set; }
 

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Sandbox;
 using SandboxEditor;
+
 namespace rh
 {
 	[Library( "ent_rh_playerplatform_4" )]
@@ -15,7 +16,7 @@ namespace rh
 		[Property( Name = "Path to take" )]
 		public EntityTarget PathEntity { get; set; }
 
-		RevolverHysteriaMovementPathEntity pathent;
+		[Net]public RevolverHysteriaMovementPathEntity pathent { get; set; }
 
 		[Net] public bool GameHasStarted { get; set; } = false;
 
@@ -180,7 +181,7 @@ namespace rh
 					TimeSinceEndNode = 0f;
 
 					currentnode++;
-					if ( currentnode > pathent.PathNodes.Count - 1 )
+					if ( currentnode > pathent.PathNodes.Count - 1)
 					{
 						currentnode = pathent.PathNodes.Count - 1;
 					}

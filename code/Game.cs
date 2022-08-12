@@ -173,13 +173,16 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 			}
 		}
 
-		if ( deadplayers == VRPlayers.Count  && IsServer && !EndTriggered && ((platform.GameHasStarted && VRPlayers.Count > 0) || DebugMode) )
+		if ( (deadplayers == VRPlayers.Count  && IsServer && ((platform.GameHasStarted && VRPlayers.Count > 0) || DebugMode)) || (platform.pathent.IsValid() && platform.currentnode == platform.pathent.PathNodes.Count-1 && IsServer) && !EndTriggered )
 		{
 			TimeSinceEnded = 0f;
 			foreach ( var vrplayer in VRPlayers )
 			{
 				GameServices.SubmitScore( vrplayer.Client.PlayerId, vrplayer.Client.GetInt( "score" ) );
-				vrplayer.RevivePlayer( vrplayer.Name );
+				if ( vrplayer.HeadEnt.HitPoints <= 0 )
+				{
+					vrplayer.RevivePlayer( vrplayer.Name );
+				}
 			}
 
 			board = new RHVotingBoard();
