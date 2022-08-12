@@ -124,10 +124,10 @@ namespace rh
 			}
 		}
 
-		public void AddHealth( long TargetPlayer )
+		public void AddHealth( string TargetPlayer )
 		{
 			HitPoints++;
-			if ( TargetPlayer == Local.PlayerId )
+			if ( TargetPlayer == Client.Name )
 			{
 				DoPostFXGreen();
 			}
@@ -168,9 +168,9 @@ namespace rh
 
 
 		[ClientRpc]
-		public void DoPostFXRed( long player )
+		public void DoPostFXRed( string player )
 		{
-			if ( player == Local.PlayerId )
+			if ( player == Client.Name )
 			{
 				RedFade();
 			}
@@ -197,7 +197,7 @@ namespace rh
 			{
 				HitPoints--;
 
-				DoPostFXRed( Local.PlayerId );
+				DoPostFXRed( Client.Name );
 			}
 			if ( HitPoints <= 0 )
 			{
@@ -212,7 +212,7 @@ namespace rh
 			{
 				HitPoints--;
 
-				DoPostFXRed( Local.PlayerId );
+				DoPostFXRed( Client.Name );
 			}
 			if ( HitPoints <= 0 )
 			{
