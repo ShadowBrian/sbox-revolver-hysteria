@@ -80,7 +80,7 @@ namespace rh
 
 			Opening = vrhand.ButtonB.WasPressed || vrhand.JoystickPress.WasPressed;
 
-			Closing = vrhand.Velocity.z > 100f;
+			Closing = vrhand.Velocity.z > 50f;
 
 			if ( Opening && !OpenCylinder )
 			{
