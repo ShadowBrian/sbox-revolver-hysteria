@@ -22,6 +22,9 @@ namespace rh
 		[Property( Name = "spawnlimit" )]
 		public int spawnlimit { get; set; } = 0;
 
+		[Property( Name = "spawndelay" )]
+		public float spawndelay { get; set; } = 0;
+
 		[Net] int EnemiesSpawned { get; set; }
 
 		PlayerPlatform platform;
@@ -61,6 +64,10 @@ namespace rh
 			}
 		}
 
+		bool StartedSpawnDelayTimer;
+
+		TimeSince TimeSinceSpawnDelayStart;
+
 		[Event.Tick.Server]
 		public void Tick()
 		{
@@ -68,8 +75,23 @@ namespace rh
 			{
 				return;
 			}
+
 			if ( platform.GameHasStarted && platform.currentnode == AssociatedNodeNumber && !(Game.Current as RevolverHysteriaGame).EndTriggered )
 			{
+
+				if(spawndelay > 0 )
+				{
+					if ( !StartedSpawnDelayTimer )
+					{
+						TimeSinceSpawnDelayStart = 0f;
+						StartedSpawnDelayTimer = true;
+					}
+					if( TimeSinceSpawnDelayStart < spawndelay )
+					{
+						return;
+					}
+				}
+
 				if ( !ActiveNPC.IsValid() && AllEnemies.Count > 0 && (spawnlimit == 0 || EnemiesSpawned < spawnlimit) )
 				{
 					if ( enemytype == null )
