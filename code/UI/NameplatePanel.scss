@@ -1,31 +1,24 @@
 ﻿@import "/UI/_Common.scss";
 
-
-HealthMeter {
-    width: 1244px;
-    height: 133px;
-    align-content: center;
-}
-
 .Title {
     top: 6%;
     font-family: 'Dream MMA'; //'Deutsch Gothic'
-    text-align: left;
-    font-size: 125px;
+    text-align: center;
+    font-size: 100px;
     padding: 10px;
     color: white;
-    margin-left: 3%;
+    margin-left: auto;
     margin-right: auto;
-    text-stroke: 3px whitesmoke;
+    text-stroke: 3px black;
 }
 
-.Title2 {
+.TitleDead {
     top: 6%;
     font-family: 'Dream MMA'; //'Deutsch Gothic'
     text-align: center;
-    font-size: 125px;
-    padding: 5px;
-    color: white;
+    font-size: 100px;
+    padding: 10px;
+    color: red;
     margin-left: auto;
     margin-right: auto;
     text-stroke: 3px black;

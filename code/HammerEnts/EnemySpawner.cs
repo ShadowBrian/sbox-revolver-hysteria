@@ -68,7 +68,7 @@ namespace rh
 			{
 				return;
 			}
-			if ( platform.GameHasStarted && platform.currentnode == AssociatedNodeNumber )
+			if ( platform.GameHasStarted && platform.currentnode == AssociatedNodeNumber && !(Game.Current as RevolverHysteriaGame).EndTriggered )
 			{
 				if ( !ActiveNPC.IsValid() && AllEnemies.Count > 0 && (spawnlimit == 0 || EnemiesSpawned < spawnlimit) )
 				{
@@ -94,9 +94,8 @@ namespace rh
 				}
 			}
 
-			if ( ActiveNPC != null && (platform.currentnode - AssociatedNodeNumber) > 2 )
+			if ( ActiveNPC != null && (platform.currentnode - AssociatedNodeNumber) > 2 || ((Game.Current as RevolverHysteriaGame).EndTriggered && ActiveNPC != null) )
 			{
-				//ActiveNPC.Task.Expire();
 				for ( int i = 0; i < ActiveNPC.Children.Count; i++ )
 				{
 					if ( i < ActiveNPC.Children.Count )

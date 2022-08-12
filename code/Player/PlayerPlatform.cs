@@ -23,6 +23,29 @@ namespace rh
 
 		[Net] List<Coinslot> slots { get; set; } = new List<Coinslot>();
 
+		List<NameplatePanel> namepanels { get; set; } = new List<NameplatePanel>();
+
+		public override void ClientSpawn()
+		{
+			base.ClientSpawn();
+
+			if ( GetAttachment( "name1" ).HasValue )
+			{
+				for ( int i = 1; i < 5; i++ )
+				{
+					NameplatePanel panel = new NameplatePanel();
+					panel.Transform = GetAttachment( "name" + i ).Value;
+					panel.PlayerIndex = i - 1;
+
+					ModelEntity ent = new ModelEntity("models/player/datascreen.vmdl");
+					ent.Transform = GetAttachment( "name" + i ).Value;
+					ent.SetParent( this );
+
+					namepanels.Add( panel );
+				}
+			}
+		}
+
 		public override void Spawn()
 		{
 			base.Spawn();
@@ -31,7 +54,7 @@ namespace rh
 
 			if ( GetAttachment( "slot1" ).HasValue )
 			{
-				for ( int i = 1; i < (Game.Current as RevolverHysteriaGame).VRPlayers.Count + 1; i++ )
+				for ( int i = 1; i < 9; i++ )
 				{
 					if ( i < 5 )
 					{
@@ -47,6 +70,7 @@ namespace rh
 						slot.Transform = GetAttachment( "slot" + (i - 4) ).Value;
 						slot.SetParent( this, "slot" + (i - 4) );
 						slot.PlayerIndex = i;
+						//slot.Scale = 0.5f;
 						slots.Add( slot );
 					}
 				}
@@ -55,6 +79,9 @@ namespace rh
 			{
 				GameHasStarted = true;
 			}
+
+
+
 		}
 
 		public float GetNodeLength( int node )
@@ -68,10 +95,20 @@ namespace rh
 
 		float movementProgress;
 
+		[Event.Tick.Client]
+		public void ClientTick()
+		{
+
+		}
+
 		[Event.Tick.Server]
 		public void ServerTick()
 		{
-			if ( !GameHasStarted )
+			if ((Game.Current as RevolverHysteriaGame).EndTriggered )
+			{
+				return;
+			}
+			if ( !GameHasStarted)
 			{
 				int PlayersReady = 0;
 				foreach ( Coinslot slot in slots )

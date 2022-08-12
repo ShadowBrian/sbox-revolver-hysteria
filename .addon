@@ -19,7 +19,7 @@
     "GameNetworkType": "Multiplayer",
     "MapSelect": "Tagged",
     "MapList": [
-      "shadb_rh_testingfacility"
+      "shadb.rh_facility"
     ],
     "RankType": "Best",
     "PerMapRanking": true,

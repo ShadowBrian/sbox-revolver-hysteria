@@ -99,6 +99,42 @@
 						weight = 1.0
 						ignore_rotation = false
 					},
+					{
+						_class = "Attachment"
+						name = "name1"
+						parent_bone = ""
+						relative_origin = [ 38.0, -60.0, 34.0 ]
+						relative_angles = [ 75.0, 0.0, 0.0 ]
+						weight = 1.0
+						ignore_rotation = false
+					},
+					{
+						_class = "Attachment"
+						name = "name2"
+						parent_bone = ""
+						relative_origin = [ 38.0, -20.0, 34.0 ]
+						relative_angles = [ 75.0, 0.0, 0.0 ]
+						weight = 1.0
+						ignore_rotation = false
+					},
+					{
+						_class = "Attachment"
+						name = "name3"
+						parent_bone = ""
+						relative_origin = [ 38.0, 20.0, 34.0 ]
+						relative_angles = [ 75.0, 0.0, 0.0 ]
+						weight = 1.0
+						ignore_rotation = false
+					},
+					{
+						_class = "Attachment"
+						name = "name4"
+						parent_bone = ""
+						relative_origin = [ 38.0, 60.0, 34.0 ]
+						relative_angles = [ 75.0, 0.0, 0.0 ]
+						weight = 1.0
+						ignore_rotation = false
+					},
 				]
 			},
 			{

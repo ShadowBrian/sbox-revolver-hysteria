@@ -1,0 +1,57 @@
+﻿.scoreboard {
+	position: absolute;
+	z-index: 100;
+	flex-direction: column;
+	font-family: 'Dream MMA';
+	font-size: 18px;
+	font-weight: 500;
+	color: white;
+	width: 90%;
+	height: 90%;
+	align-items: start;
+	justify-content: start;
+	opacity: 0;
+	background-color: rgba( 0, 0, 0, 0.9 );
+	transition: all 0.1s ease-out;
+	transform: scale( 1 );
+	transform-origin: 50% 50%;
+	padding: 10px 10px 10px 10px;
+
+	&.open {
+		opacity: 1;
+		transform: scale( 1 );
+	}
+
+	.name {
+		flex-grow: 1;
+	}
+
+	.points, .ping {
+		width: 95px;
+		text-align: right;
+	}
+
+	.header {
+		font-weight: 200;
+		opacity: 0.3;
+		border-bottom: 3px solid rgba( white, 0.6 );
+		min-width: 30%;
+	}
+
+	.canvas {
+		flex-direction: column;
+		min-height: 50%;
+		min-width: 30%;
+
+		.entry {
+			margin-bottom: 2px;
+			padding: 4px;
+			border-bottom: 1px solid rgba( white, 0.6 );
+
+			&.me {
+				color: #b6ff00;
+				border-bottom: 1px solid #b6ff00;
+			}
+		}
+	}
+}

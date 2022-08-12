@@ -9,7 +9,7 @@ namespace rh
 {
 	public partial class VRHead : ModelEntity
 	{
-		[Net,Predicted] public int HitPoints { get; set; } = 5;
+		[Net, Predicted] public int HitPoints { get; set; } = 5;
 
 		ModelEntity RedPostEnt { get; set; }
 
@@ -39,7 +39,7 @@ namespace rh
 
 		public void HandleHead()
 		{
-			if ( VRPlayerEnt == null)
+			if ( VRPlayerEnt == null )
 			{
 				return;
 			}
@@ -47,7 +47,7 @@ namespace rh
 			Rotation = Rotation.LookAt( Input.VR.Head.Rotation.Forward.WithY( 0 ) );
 
 
-			if ( HeadModel != null && this.IsValid())
+			if ( HeadModel != null && this.IsValid() )
 			{
 				HeadModel.Position = Input.VR.Head.Position;
 				HeadModel.Scale = 0.75f;
@@ -124,7 +124,7 @@ namespace rh
 			}
 		}
 
-		public void AddHealth(long TargetPlayer)
+		public void AddHealth( long TargetPlayer )
 		{
 			HitPoints++;
 			if ( TargetPlayer == Local.PlayerId )
@@ -141,7 +141,13 @@ namespace rh
 
 		public void ShowDeathScreen()
 		{
-			RedAlpha = 0.5f;
+			//HitPoints = 5;
+
+			if ( (VRPlayerEnt as VRPlayer).cage != null )
+			{
+				(VRPlayerEnt as VRPlayer).cage.UsedCage = true;
+				(VRPlayerEnt as VRPlayer).cage = null;
+			}
 		}
 
 		public async Task GreenFade()
@@ -162,7 +168,7 @@ namespace rh
 
 
 		[ClientRpc]
-		public void DoPostFXRed(long player)
+		public void DoPostFXRed( long player )
 		{
 			if ( player == Local.PlayerId )
 			{
@@ -191,7 +197,7 @@ namespace rh
 			{
 				HitPoints--;
 
-				DoPostFXRed(Local.PlayerId);
+				DoPostFXRed( Local.PlayerId );
 			}
 			if ( HitPoints <= 0 )
 			{
@@ -206,7 +212,7 @@ namespace rh
 			{
 				HitPoints--;
 
-				DoPostFXRed(Local.PlayerId);
+				DoPostFXRed( Local.PlayerId );
 			}
 			if ( HitPoints <= 0 )
 			{

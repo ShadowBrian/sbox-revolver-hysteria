@@ -19,6 +19,17 @@ namespace rh;
 /// </summary>
 public partial class RevolverHysteriaGame : Sandbox.Game
 {
+	public static List<string> GetMaps()
+	{
+		var packageTask = Package.Fetch( Global.GameIdent, true ).ContinueWith( t =>
+		{
+			Package package = t.Result;
+			return package.GetMeta<List<string>>( "MapList" );
+		} );
+
+		return packageTask.Result;
+	}
+
 	public RevolverHysteriaGame()
 	{
 		Global.TickRate = 120;
@@ -125,12 +136,16 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 		}
 	}
 
-	[Net] bool EndTriggered { get; set; } = false;
+	[Net] public bool EndTriggered { get; set; } = false;
 	[Net] TimeSince TimeSinceEnded { get; set; }
 
 	[Net] bool FirstPlayerArrived { get; set; }
 
 	[Net] TimeSince TimeSinceFirstPlayer { get; set; }
+
+	RHVotingBoard board;
+
+	bool DebugMode = false;
 
 	public override void Simulate( Client cl )
 	{
@@ -138,7 +153,7 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 
 		int deadplayers = 0;
 
-		if(VRPlayers.Count > 0 && !FirstPlayerArrived)
+		if((VRPlayers.Count > 0 || DebugMode) && !FirstPlayerArrived)
 		{
 			TimeSinceFirstPlayer = 0f;
 			FirstPlayerArrived = true;
@@ -158,19 +173,23 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 			}
 		}
 
-		if ( deadplayers == VRPlayers.Count && platform.GameHasStarted && VRPlayers.Count > 0 && IsServer && !EndTriggered)
+		if ( deadplayers == VRPlayers.Count  && IsServer && !EndTriggered && ((platform.GameHasStarted && VRPlayers.Count > 0) || DebugMode) )
 		{
 			TimeSinceEnded = 0f;
 			foreach ( var vrplayer in VRPlayers )
 			{
 				GameServices.SubmitScore( vrplayer.Client.PlayerId, vrplayer.Client.GetInt( "score" ) );
+				vrplayer.RevivePlayer( vrplayer.Name );
 			}
+
+			board = new RHVotingBoard();
+
 			EndTriggered = true;
 		}
 
-		if(EndTriggered && TimeSinceEnded > 10f && IsServer )
+		if(EndTriggered && TimeSinceEnded > 30f && IsServer )
 		{
-			Global.ChangeLevel( Global.MapName );
+			Global.ChangeLevel( board.ReturnMostVotedMap() );
 		}
 
 
