@@ -39,6 +39,8 @@ namespace rh
 
 		public List<string> AllEnemies = new List<string>();
 
+		bool InputSpawnedEnemy = false;
+
 		public override void Spawn()
 		{
 			platform = All.OfType<PlayerPlatform>().FirstOrDefault();
@@ -81,7 +83,7 @@ namespace rh
 				return;
 			}
 
-			if ( platform.GameHasStarted && platform.currentnode == AssociatedNodeNumber && !(Game.Current as RevolverHysteriaGame).EndTriggered )
+			if ( ((platform.GameHasStarted && platform.currentnode == AssociatedNodeNumber) || (InputSpawnedEnemy)) && !(Game.Current as RevolverHysteriaGame).EndTriggered )
 			{
 				if ( spawndelay > 0 )
 				{
@@ -145,12 +147,24 @@ namespace rh
 		}
 
 		[Input]
+		public void StopSpawning()
+		{
+			InputSpawnedEnemy = false;
+		}
+
+		[Input]
 		public void SpawnEnemy()
 		{
 			if ( (Game.Current as RevolverHysteriaGame).EndTriggered )
 			{
 				return;
 			}
+			if ( spawndelay > 0 )
+			{
+				SpawnDelayedEnemyOutput();
+				return;
+			}
+
 			if ( !ActiveNPC.IsValid() && AllEnemies.Count > 0 && (spawnlimit == 0 || EnemiesSpawned < spawnlimit) )
 			{
 				if ( enemytype == null )
@@ -176,7 +190,41 @@ namespace rh
 					TimeSinceSpawnDelayStart = 0;
 					StartedSpawnDelayTimer = false;
 				}
+				InputSpawnedEnemy = true;
 			}
+		}
+
+		public async Task SpawnDelayedEnemyOutput()
+		{
+			await Task.DelaySeconds( spawndelay );
+			if ( !ActiveNPC.IsValid() && AllEnemies.Count > 0 && (spawnlimit == 0 || EnemiesSpawned < spawnlimit) )
+			{
+				if ( enemytype == null )
+				{
+					ActiveNPC = BaseEnemyClass.FromPath( Rand.FromList( AllEnemies ) );
+				}
+				else
+				{
+					ActiveNPC = BaseEnemyClass.FromPath( enemytype );
+				}
+				EnemiesSpawned++;
+				ActiveNPC.Position = Position + Vector3.Up;
+				if ( Children.Count == 0 )
+				{
+					ActiveNPC.TargetDestination = walkpoint;
+				}
+				else
+				{
+					ActiveNPC.TargetDestination = Children[0].Position;
+				}
+				if ( UseSpawnDelayEveryTime )
+				{
+					TimeSinceSpawnDelayStart = 0;
+					StartedSpawnDelayTimer = false;
+				}
+				InputSpawnedEnemy = true;
+			}
+
 		}
 	}
 }
