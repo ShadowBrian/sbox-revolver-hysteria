@@ -16,7 +16,13 @@ namespace rh
 		[Property( Name = "Path to take" )]
 		public EntityTarget PathEntity { get; set; }
 
-		[Net]public RevolverHysteriaMovementPathEntity pathent { get; set; }
+		public Output OnGameStart { get; set; }
+
+		public Output OnGameEndWin { get; set; }
+
+		public Output OnGameEndDied { get; set; }
+
+		[Net] public RevolverHysteriaMovementPathEntity pathent { get; set; }
 
 		[Net] public bool GameHasStarted { get; set; } = false;
 
@@ -38,7 +44,7 @@ namespace rh
 					panel.Transform = GetAttachment( "name" + i ).Value;
 					panel.PlayerIndex = i - 1;
 
-					ModelEntity ent = new ModelEntity("models/player/datascreen.vmdl");
+					ModelEntity ent = new ModelEntity( "models/player/datascreen.vmdl" );
 					ent.Transform = GetAttachment( "name" + i ).Value;
 					ent.SetParent( this );
 
@@ -105,11 +111,11 @@ namespace rh
 		[Event.Tick.Server]
 		public void ServerTick()
 		{
-			if ((Game.Current as RevolverHysteriaGame).EndTriggered )
+			if ( (Game.Current as RevolverHysteriaGame).EndTriggered )
 			{
 				return;
 			}
-			if ( !GameHasStarted)
+			if ( !GameHasStarted )
 			{
 				int PlayersReady = 0;
 				foreach ( Coinslot slot in slots )
@@ -142,6 +148,7 @@ namespace rh
 					GameHasStarted = true;
 					TimeSinceEndNode = 0f;
 					(pathent.PathNodes[currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).OnPassed.Fire( this );
+					OnGameStart.Fire( this );
 				}
 
 				return;
@@ -181,7 +188,7 @@ namespace rh
 					TimeSinceEndNode = 0f;
 
 					currentnode++;
-					if ( currentnode > pathent.PathNodes.Count - 1)
+					if ( currentnode > pathent.PathNodes.Count - 1 )
 					{
 						currentnode = pathent.PathNodes.Count - 1;
 					}

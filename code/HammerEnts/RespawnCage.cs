@@ -10,7 +10,7 @@ namespace rh
 {
 	[HammerEntity]
 	[Library( "ent_rh_respawncage" )]
-	[Model(Model = "models/player/respawncage.vmdl" )]
+	[Model( Model = "models/player/respawncage.vmdl" )]
 	public partial class RespawnCage : AnimatedEntity
 	{
 		[Property]
@@ -18,6 +18,8 @@ namespace rh
 		[Net, Predicted] public VRPlayer OccupyingPlayer { get; set; }
 
 		[Net, Predicted] public bool UsedCage { get; set; }
+
+		public Output OnPlayerSaved { get; set; }
 
 		public override void Spawn()
 		{
@@ -36,7 +38,7 @@ namespace rh
 		{
 			base.TakeDamage( info );
 
-			if ( info.Attacker is VRPlayer pawn || info.Attacker is BaseEnemyClass enemy)
+			if ( info.Attacker is VRPlayer pawn || info.Attacker is BaseEnemyClass enemy )
 			{
 				HitsRequired--;
 				if ( HitsRequired == 0 )
@@ -45,9 +47,10 @@ namespace rh
 					{
 						SetAnimParameter( "opencage", true );
 						SetBodyGroup( 0, 1 );
-						OccupyingPlayer.RevivePlayer(OccupyingPlayer.Name);
+						OccupyingPlayer.RevivePlayer( OccupyingPlayer.Name );
 						OccupyingPlayer = null;
 						UsedCage = true;
+						OnPlayerSaved.Fire( this );
 					}
 				}
 			}

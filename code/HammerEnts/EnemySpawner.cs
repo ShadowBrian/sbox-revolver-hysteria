@@ -25,6 +25,9 @@ namespace rh
 		[Property( Name = "spawndelay" )]
 		public float spawndelay { get; set; } = 0;
 
+		[Property( Name = "UseSpawnDelayEveryTime" )]
+		public bool UseSpawnDelayEveryTime { get; set; }
+
 		[Net] int EnemiesSpawned { get; set; }
 
 		PlayerPlatform platform;
@@ -71,7 +74,7 @@ namespace rh
 		[Event.Tick.Server]
 		public void Tick()
 		{
-			if(platform == null )
+			if ( platform == null )
 			{
 				return;
 			}
@@ -79,14 +82,14 @@ namespace rh
 			if ( platform.GameHasStarted && platform.currentnode == AssociatedNodeNumber && !(Game.Current as RevolverHysteriaGame).EndTriggered )
 			{
 
-				if(spawndelay > 0 )
+				if ( spawndelay > 0 )
 				{
 					if ( !StartedSpawnDelayTimer )
 					{
 						TimeSinceSpawnDelayStart = 0f;
 						StartedSpawnDelayTimer = true;
 					}
-					if( TimeSinceSpawnDelayStart < spawndelay )
+					if ( TimeSinceSpawnDelayStart < spawndelay )
 					{
 						return;
 					}
@@ -112,7 +115,11 @@ namespace rh
 					{
 						ActiveNPC.TargetDestination = Children[0].Position;
 					}
-
+					if ( UseSpawnDelayEveryTime )
+					{
+						TimeSinceSpawnDelayStart = 0;
+						StartedSpawnDelayTimer = false;
+					}
 				}
 			}
 

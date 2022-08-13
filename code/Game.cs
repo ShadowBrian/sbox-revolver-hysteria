@@ -64,7 +64,7 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 
 			platform = All.OfType<PlayerPlatform>().FirstOrDefault();
 
-			if ( platform != null && VRPlayers.IndexOf( VRRig ) < 4)
+			if ( platform != null && VRPlayers.IndexOf( VRRig ) < 4 )
 			{
 				pawn.platform = platform;
 				if ( platform.GetAttachment( "player" + (VRPlayers.IndexOf( VRRig ) + 1) ).HasValue )
@@ -75,9 +75,9 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 			}
 			else
 			{
-				if ( platform.GetAttachment( "player" +((VRPlayers.IndexOf( VRRig ) + 1)-4) ).HasValue )
+				if ( platform.GetAttachment( "player" + ((VRPlayers.IndexOf( VRRig ) + 1) - 4) ).HasValue )
 				{
-					var tx = platform.GetAttachment( "player" + ((VRPlayers.IndexOf( VRRig ) + 1)-4) ).Value;
+					var tx = platform.GetAttachment( "player" + ((VRPlayers.IndexOf( VRRig ) + 1) - 4) ).Value;
 					pawn.Transform = tx;
 				}
 			}
@@ -124,7 +124,7 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 		base.ClientDisconnect( cl, reason );
 		for ( int i = 0; i < VRPlayers.Count; i++ )
 		{
-			if(VRPlayers[i].Client == cl )
+			if ( VRPlayers[i].Client == cl )
 			{
 				VRPlayers[i].LH.Delete();
 				VRPlayers[i].RH.Delete();
@@ -158,13 +158,13 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 
 		int deadplayers = 0;
 
-		if((VRPlayers.Count > 0 || DebugMode) && !FirstPlayerArrived)
+		if ( (VRPlayers.Count > 0 || DebugMode) && !FirstPlayerArrived )
 		{
 			TimeSinceFirstPlayer = 0f;
 			FirstPlayerArrived = true;
 		}
 
-		if (!FirstPlayerArrived || TimeSinceFirstPlayer < 0.5f)
+		if ( !FirstPlayerArrived || TimeSinceFirstPlayer < 0.5f )
 		{
 			return;
 		}
@@ -172,13 +172,13 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 		foreach ( var vrplayer in VRPlayers )
 		{
 			vrplayer.Simulate( cl );
-			if ( vrplayer.HeadEnt.IsValid() && vrplayer.HeadEnt.HitPoints <= 0)
+			if ( vrplayer.HeadEnt.IsValid() && vrplayer.HeadEnt.HitPoints <= 0 )
 			{
 				deadplayers++;
 			}
 		}
 
-		if ( (deadplayers == VRPlayers.Count  && IsServer && ((platform.GameHasStarted && VRPlayers.Count > 0) || DebugMode)) || (platform.pathent.IsValid() && (platform.currentnode == platform.pathent.PathNodes.Count-1 && !(platform.pathent.PathNodes[platform.currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).AlternativePathEnabled) && IsServer) && !EndTriggered )
+		if ( (deadplayers == VRPlayers.Count && IsServer && ((platform.GameHasStarted && VRPlayers.Count > 0) || DebugMode)) || (platform.pathent.IsValid() && (platform.currentnode == platform.pathent.PathNodes.Count - 1 && !(platform.pathent.PathNodes[platform.currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).AlternativePathEnabled) && IsServer) && !EndTriggered )
 		{
 			TimeSinceEnded = 0f;
 			foreach ( var vrplayer in VRPlayers )
@@ -190,18 +190,27 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 				}
 			}
 
+			if ( platform.currentnode == platform.pathent.PathNodes.Count - 1 && !(platform.pathent.PathNodes[platform.currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).AlternativePathEnabled )
+			{
+				platform.OnGameEndWin.Fire( platform );
+			}
+			else
+			{
+				platform.OnGameEndDied.Fire( platform );
+			}
+
 			board = new RHVotingBoard();
 
 			EndTriggered = true;
 		}
 
-		if(EndTriggered && TimeSinceEnded > 30f && IsServer )
+		if ( EndTriggered && TimeSinceEnded > 30f && IsServer )
 		{
 			Global.ChangeLevel( board.ReturnMostVotedMap() );
 		}
 
 
-		if ( EndTriggered && TimeSinceEnded < 10f && IsClient)
+		if ( EndTriggered && TimeSinceEnded < 10f && IsClient )
 		{
 			foreach ( var vrplayer in VRPlayers )
 			{
