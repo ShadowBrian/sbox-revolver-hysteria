@@ -67,6 +67,8 @@ namespace rh
 			}
 		}
 
+
+
 		bool StartedSpawnDelayTimer;
 
 		TimeSince TimeSinceSpawnDelayStart;
@@ -81,7 +83,6 @@ namespace rh
 
 			if ( platform.GameHasStarted && platform.currentnode == AssociatedNodeNumber && !(Game.Current as RevolverHysteriaGame).EndTriggered )
 			{
-
 				if ( spawndelay > 0 )
 				{
 					if ( !StartedSpawnDelayTimer )
@@ -113,7 +114,14 @@ namespace rh
 					}
 					else
 					{
-						ActiveNPC.TargetDestination = Children[0].Position;
+						if ( Children.Count > 1 )
+						{
+							ActiveNPC.TargetDestination = Children[Rand.Int( 0, Children.Count - 1 )].Position;
+						}
+						else
+						{
+							ActiveNPC.TargetDestination = Children[0].Position;
+						}
 					}
 					if ( UseSpawnDelayEveryTime )
 					{
@@ -123,7 +131,7 @@ namespace rh
 				}
 			}
 
-			if ( ActiveNPC != null && (platform.currentnode - AssociatedNodeNumber) > 2 || ((Game.Current as RevolverHysteriaGame).EndTriggered && ActiveNPC != null) )
+			if ( ActiveNPC != null && (Game.Current as RevolverHysteriaGame).EndTriggered )
 			{
 				for ( int i = 0; i < ActiveNPC.Children.Count; i++ )
 				{
@@ -133,6 +141,41 @@ namespace rh
 					}
 				}
 				ActiveNPC.Delete();
+			}
+		}
+
+		[Input]
+		public void SpawnEnemy()
+		{
+			if ( (Game.Current as RevolverHysteriaGame).EndTriggered )
+			{
+				return;
+			}
+			if ( !ActiveNPC.IsValid() && AllEnemies.Count > 0 && (spawnlimit == 0 || EnemiesSpawned < spawnlimit) )
+			{
+				if ( enemytype == null )
+				{
+					ActiveNPC = BaseEnemyClass.FromPath( Rand.FromList( AllEnemies ) );
+				}
+				else
+				{
+					ActiveNPC = BaseEnemyClass.FromPath( enemytype );
+				}
+				EnemiesSpawned++;
+				ActiveNPC.Position = Position + Vector3.Up;
+				if ( Children.Count == 0 )
+				{
+					ActiveNPC.TargetDestination = walkpoint;
+				}
+				else
+				{
+					ActiveNPC.TargetDestination = Children[0].Position;
+				}
+				if ( UseSpawnDelayEveryTime )
+				{
+					TimeSinceSpawnDelayStart = 0;
+					StartedSpawnDelayTimer = false;
+				}
 			}
 		}
 	}
