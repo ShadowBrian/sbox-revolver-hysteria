@@ -147,6 +147,11 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 
 	bool DebugMode = false;
 
+	public override void OnVoicePlayed( Client cl )
+	{
+		base.OnVoicePlayed( cl );
+	}
+
 	public override void Simulate( Client cl )
 	{
 		base.Simulate( cl );

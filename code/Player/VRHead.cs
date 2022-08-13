@@ -11,15 +11,14 @@ namespace rh
 	{
 		[Net] public int HitPoints { get; set; } = 5;
 
-		ModelEntity RedPostEnt { get; set; }
-
-		ModelEntity GreenPostEnt { get; set; }
-
 		[Net] public Entity VRPlayerEnt { get; set; }
 
 		[Net] public AnimatedEntity HeadModel { get; set; }
 
 		[Net, Predicted] public bool HeadDressed { get; set; }
+
+		ModelEntity RedPostEnt { get; set; }
+		ModelEntity GreenPostEnt { get; set; }
 
 		float RedAlpha, GreenAlpha;
 
@@ -124,19 +123,17 @@ namespace rh
 			}
 		}
 
-		public void AddHealth( string TargetPlayer )
-		{
-			HitPoints++;
-			if ( TargetPlayer == Client.Name )
-			{
-				DoPostFXGreen();
-			}
-		}
-
 		[ClientRpc]
 		public void DoPostFXGreen()
 		{
 			GreenFade();
+		}
+
+		public void AddHealth()
+		{
+			HitPoints++;
+
+			DoPostFXGreen( To.Single( Client ) );
 		}
 
 		public void ShowDeathScreen()
@@ -166,14 +163,10 @@ namespace rh
 			GreenAlpha = 0f;
 		}
 
-
 		[ClientRpc]
-		public void DoPostFXRed( string player )
+		public void DoPostFXRed()
 		{
-			if ( player == Client.Name )
-			{
-				RedFade();
-			}
+			RedFade();
 		}
 
 		public async Task RedFade()
@@ -197,7 +190,7 @@ namespace rh
 			{
 				HitPoints--;
 
-				DoPostFXRed( Client.Name );
+				DoPostFXRed( To.Single( Client ) );
 			}
 			if ( HitPoints <= 0 )
 			{
@@ -212,7 +205,7 @@ namespace rh
 			{
 				HitPoints--;
 
-				DoPostFXRed( Client.Name );
+				DoPostFXRed( To.Single( Client ) );
 			}
 			if ( HitPoints <= 0 )
 			{

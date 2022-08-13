@@ -20,7 +20,7 @@
 					{
 						m_id = 1527458731
 					}
-					m_networkMode = "ServerAuthoritative"
+					m_networkMode = "ClientPredicted"
 					m_sNote = ""
 					m_states = 
 					[
@@ -135,7 +135,7 @@
 					{
 						m_id = 1684507905
 					}
-					m_networkMode = "ServerAuthoritative"
+					m_networkMode = "ClientPredicted"
 					m_sNote = ""
 					m_tagSpans = [  ]
 					m_sequenceName = "open"
@@ -157,7 +157,7 @@
 					{
 						m_id = 1733368323
 					}
-					m_networkMode = "ServerAuthoritative"
+					m_networkMode = "ClientPredicted"
 					m_sNote = ""
 					m_tagSpans = [  ]
 					m_sequenceName = "open"
@@ -179,7 +179,7 @@
 					{
 						m_id = 1885506916
 					}
-					m_networkMode = "ServerAuthoritative"
+					m_networkMode = "ClientPredicted"
 					m_sNote = ""
 					m_inputConnection = 
 					{
@@ -210,7 +210,7 @@
 				}
 				m_previewButton = "ANIMPARAM_BUTTON_NONE"
 				m_bNetwork = true
-				m_bUseMostRecentValue = true
+				m_bUseMostRecentValue = false
 				m_bAutoReset = false
 				m_bPredicted = true
 				m_bDefaultValue = false

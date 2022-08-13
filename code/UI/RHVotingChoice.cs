@@ -29,7 +29,7 @@ namespace rh
 		public override void ClientSpawn()
 		{
 			base.ClientSpawn();
-			panel = RHMapVotePanel.FromPackage(AssociatedMap, GetAttachment( "panel" ).Value.Position, GetAttachment( "panel" ).Value.Rotation * new Angles( 0, 180, 0 ).ToRotation() );
+			panel = RHMapVotePanel.FromPackage( AssociatedMap, GetAttachment( "panel" ).Value.Position, GetAttachment( "panel" ).Value.Rotation * new Angles( 0, 180, 0 ).ToRotation() );
 		}
 
 		[Net] string VoteCount { get; set; } = "0";
@@ -51,25 +51,98 @@ namespace rh
 		}
 	}
 
+	public enum TextType
+	{
+		White,
+		Positive,
+		Negative
+	}
+
 	public partial class WorldLabel : WorldPanel
 	{
 		public Label label;
+
+		Vector3 Velocity;
+
+		bool UseGravity;
+
+		float SetScale = 0.5f;
+
+		int bounces = 0;
+
 		public WorldLabel()
 		{
 			StyleSheet.Load( "UI/WristUI.scss" );
 			label = Add.Label( "", "Title2" );
 		}
 
-		public WorldLabel(string text, Transform trans)
+		public WorldLabel( string text, Transform trans )
 		{
 			StyleSheet.Load( "UI/WristUI.scss" );
-			label = Add.Label( text.ToLower(), "Title2" );			
+			label = Add.Label( text.ToLower(), "Title2" );
+		}
+
+		public WorldLabel( string text, Transform trans, TextType type, Vector3 vel, bool gravity, float scale )
+		{
+			StyleSheet.Load( "UI/WristUI.scss" );
+			label = Add.Label( text.ToLower(), "Title2" );
+
+			switch ( type )
+			{
+				case TextType.White:
+					break;
+				case TextType.Positive:
+					label.SetClass( "positive", true );
+					break;
+				case TextType.Negative:
+					label.SetClass( "negative", true );
+					break;
+				default:
+					break;
+			}
+
+			Velocity = vel;
+			UseGravity = gravity;
+			SetScale = scale;
+
+			DeleteAsync( 5f );
+		}
+
+		public async Task DeleteAsync( float fTime )
+		{
+			await Task.DelaySeconds( fTime );
+			Delete();
 		}
 
 		public override void Tick()
 		{
 			PanelBounds = new Rect( -500f, -250f, 1000f, 500f );
-			Scale = 0.5f;
+			Scale = SetScale;
+
+			if ( UseGravity )
+			{
+				Position -= Vector3.Up * 600f * Time.Delta;
+			}
+
+			if ( Velocity != Vector3.Zero )
+			{
+				Position += Velocity;
+				Velocity *= 0.99f;
+
+				TraceResult trace = Trace.Ray( Position, Position + Velocity - (Vector3.Up * 600 * Time.Delta) ).WorldOnly().Run();
+
+				if ( trace.Hit )
+				{
+					Velocity = Vector3.Reflect( Velocity, trace.Normal );
+
+					if ( trace.Normal.z > 0 && bounces < 2 )
+					{
+						bounces++;
+						Velocity += (Vector3.Up * 12.5f) * 0.75f;
+						Velocity *= 1f / bounces;
+					}
+				}
+			}
 		}
 
 	}
@@ -112,7 +185,7 @@ namespace rh
 
 			VoteCount = new WorldLabel();
 
-			label1 = new WorldLabel( "VOTES", new Transform(Position - Vector3.Up * 30f,Rotation) );
+			label1 = new WorldLabel( "VOTES", new Transform( Position - Vector3.Up * 30f, Rotation ) );
 
 			label2 = new WorldLabel( mapName, new Transform( Position + Vector3.Up * 25f, Rotation ) );
 
@@ -137,14 +210,14 @@ namespace rh
 			}*/
 
 			//associatedboard = Entity.All.OfType<RHVotingBoard>().FirstOrDefault();
-			
+
 
 
 			VoteCount.Transform = new Transform( Position - Vector3.Up * 35.5f, Rotation );
 			label1.Transform = new Transform( Position - Vector3.Up * 30.5f, Rotation );
 			label2.Transform = new Transform( Position + Vector3.Up * 8.5f + Rotation.Forward * 1f, Rotation ).WithScale( 0.75f );
 
-			
+
 
 		}
 	}

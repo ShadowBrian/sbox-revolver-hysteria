@@ -36,7 +36,7 @@
 				{
 					_class = "CBoneMaskAnimNode"
 					m_sName = "Mask expressions in"
-					m_vecPosition = [ -160.0, -128.0 ]
+					m_vecPosition = [ -176.0, -128.0 ]
 					m_nNodeID = 
 					{
 						m_id = 998884633
@@ -195,7 +195,7 @@
 				{
 					_class = "CRootAnimNode"
 					m_sName = "Unnamed"
-					m_vecPosition = [ 176.0, -112.0 ]
+					m_vecPosition = [ 176.0, -128.0 ]
 					m_nNodeID = 
 					{
 						m_id = 1900957761

@@ -28,7 +28,7 @@ namespace rh
 			{
 				if ( player.HeadEnt.HitPoints < 5 )
 				{
-					player.HeadEnt.AddHealth( player.HeadEnt.Client.Name );
+					player.HeadEnt.AddHealth();
 
 					Delete();
 				}

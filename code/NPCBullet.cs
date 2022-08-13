@@ -7,7 +7,7 @@ using Sandbox;
 
 namespace rh
 {
-	public partial class NPCBullet : ModelEntity
+	public partial class NPCBullet : AnimatedEntity
 	{
 		Particles system;
 		public override void Spawn()
@@ -15,14 +15,12 @@ namespace rh
 			SetModel( "models/npcs/bullet/bullet.vmdl" );
 			system = Particles.Create( "particles/tracer.standard.vpcf" );
 
-			Transmit = TransmitType.Always;
-
 			DeleteAsync( 20f );
 		}
 
 		[Event.Tick.Server]
 		public void Tick()
-		{
+		{ 
 			system?.SetPosition( 0, Position );
 			system?.SetPosition( 1, Position + Rotation.Forward * 20f );
 

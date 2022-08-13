@@ -42,6 +42,10 @@
 								from = "phong1.vmat"
 								to = "models/player/materials/cage.vmat"
 							},
+							{
+								from = "phong2.vmat"
+								to = "models/player/materials/cage_glow.vmat"
+							},
 						]
 						use_global_default = false
 						global_default_material = ""
@@ -53,21 +57,23 @@
 				children = 
 				[
 					{
-						_class = "PhysicsMeshFile"
+						_class = "PhysicsHullFile"
 						name = "respawncage"
 						parent_bone = ""
-						surface_prop = "default"
+						surface_prop = "metal"
 						collision_tags = "solid"
 						recenter_on_parent_bone = false
-						offset_origin = [ 0.0, 0.0, 0.0 ]
+						offset_origin = [ -11.0, -5.0, -15.0 ]
 						offset_angles = [ 0.0, 0.0, 0.0 ]
 						align_origin_x_type = "None"
 						align_origin_y_type = "None"
 						align_origin_z_type = "None"
 						filename = "models/player/respawncage.fbx"
-						import_scale = 1.0
-						maxMeshVertices = 0
-						qemError = 0.0
+						import_scale = 1.5
+						faceMergeAngle = 10.0
+						maxHullVertices = 0
+						import_mode = "SingleHull"
+						optimization_algorithm = "QEM"
 						import_filter = 
 						{
 							exclude_by_default = false

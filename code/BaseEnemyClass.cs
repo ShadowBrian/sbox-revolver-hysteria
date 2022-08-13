@@ -190,7 +190,7 @@ namespace rh
 			if ( (Game.Current as RevolverHysteriaGame).VRPlayers[(ChosenShootTarget - 1) % (Game.Current as RevolverHysteriaGame).VRPlayers.Count].HeadEnt.HitPoints <= 0 )
 			{
 				ChosenShootTarget += 1;
-				if(ChosenShootTarget > 4 )
+				if ( ChosenShootTarget > 4 )
 				{
 					ChosenShootTarget = 1;
 				}
@@ -317,6 +317,14 @@ namespace rh
 			}
 		}
 
+		[ClientRpc]
+		public void DoScorePopup( int num, Vector3 pos, Rotation rot, Client client )
+		{
+			WorldLabel label = new WorldLabel( num + "", new Transform( pos ), num > 0 ? TextType.Positive : TextType.Negative, (Vector3.Up * 10f + (rot.Left * Rand.Float( -2f, 2f ))) * 0.75f, true, 1.5f );
+			label.Position = pos;
+			label.Rotation = rot;
+		}
+
 
 		public override void TakeDamage( DamageInfo info )
 		{
@@ -346,6 +354,8 @@ namespace rh
 					scorecount -= (enemyResource.WeaponType == EnemyWeapon.Unarmed ? 600 : 0);
 
 					info.Attacker.Client.AddInt( "score", scorecount );
+
+					DoScorePopup( To.Single( info.Attacker.Client ), scorecount, info.Position, Rotation.LookAt( info.Attacker.Position - info.Position, Vector3.Up * 10f ), info.Attacker.Client );
 				}
 			}
 		}
@@ -388,7 +398,7 @@ namespace rh
 
 			helper = new CitizenAnimationHelper( this );
 
-			if ( ChosenShootTarget <= (Game.Current as RevolverHysteriaGame).VRPlayers.Count && (Game.Current as RevolverHysteriaGame).VRPlayers[ChosenShootTarget - 1].HeadEnt.HitPoints > 0)
+			if ( ChosenShootTarget <= (Game.Current as RevolverHysteriaGame).VRPlayers.Count && (Game.Current as RevolverHysteriaGame).VRPlayers[ChosenShootTarget - 1].HeadEnt.HitPoints > 0 )
 			{
 				LookDir = (Game.Current as RevolverHysteriaGame).VRPlayers[ChosenShootTarget - 1].HeadEnt.Position;//- Vector3.Up * 50f * Scale
 
@@ -485,7 +495,7 @@ namespace rh
 				{
 					Vector3 GoPath = MovementhPath[CurrentPoint];
 
-					if (enemyResource.MovementType == EnemyMovementType.Flying )
+					if ( enemyResource.MovementType == EnemyMovementType.Flying )
 					{
 						GoPath = GoPath.WithZ( platform.Position.z + 100f );
 					}
