@@ -8,11 +8,23 @@ using SandboxEditor;
 
 namespace rh
 {
+
 	[Library( "ent_rh_playerplatform_4" )]
 	[HammerEntity]
 	[Model( Model = "models/player/playerplatform_4.vmdl" )]
 	public partial class PlayerPlatform : AnimatedEntity
 	{
+
+		public PlayerPlatform()
+		{
+
+		}
+		public PlayerPlatform( string modelName )
+		{
+			SetModel( modelName );
+		}
+
+
 		[Property( Name = "Path to take" )]
 		public EntityTarget PathEntity { get; set; }
 
@@ -23,6 +35,8 @@ namespace rh
 		public Output OnGameEndDied { get; set; }
 
 		[Net] public RevolverHysteriaMovementPathEntity pathent { get; set; }
+
+		[Net] public SimplePathEnt simplepathent { get; set; }
 
 		[Net] public bool GameHasStarted { get; set; } = false;
 
@@ -84,18 +98,59 @@ namespace rh
 			}
 			else
 			{
-				GameHasStarted = true;
+				WaitForSlots();
+				//GameHasStarted = true;
 			}
 
+		}
 
+		public async Task WaitForSlots()
+		{
+			await Task.DelayRealtimeSeconds( 0.5f );
+			if ( GetAttachment( "slot1" ).HasValue )
+			{
+				for ( int i = 1; i < 9; i++ )
+				{
+					if ( i < 5 )
+					{
+						Coinslot slot = new Coinslot();
+						slot.Transform = GetAttachment( "slot" + i ).Value;
+						slot.SetParent( this, "slot" + i );
+						slot.PlayerIndex = i;
+						slots.Add( slot );
+					}
+					else
+					{
+						Coinslot slot = new Coinslot();
+						slot.Transform = GetAttachment( "slot" + (i - 4) ).Value;
+						slot.SetParent( this, "slot" + (i - 4) );
+						slot.PlayerIndex = i;
+						//slot.Scale = 0.5f;
+						slots.Add( slot );
+					}
+				}
+			}
+			else
+			{
+				GameHasStarted = true;
+			}
 
 		}
 
 		public float GetNodeLength( int node )
 		{
-			float distance = pathent.GetCurveLength( pathent.PathNodes[node], pathent.PathNodes[(node + 1) % pathent.PathNodes.Count], 5 );
+			if ( pathent != null )
+			{
+				float distance = pathent.GetCurveLength( pathent.PathNodes[node], pathent.PathNodes[(node + 1) % pathent.PathNodes.Count], 5 );
 
-			return distance;
+				return distance;
+			}
+			else
+			{
+				float distance = simplepathent.GetNodeLength( simplepathent.PathNodes[node], simplepathent.PathNodes[(node + 1) % simplepathent.PathNodes.Count] );
+
+				return distance;
+			}
 		}
 
 		TimeSince TimeSinceEndNode;
@@ -125,6 +180,7 @@ namespace rh
 						PlayersReady++;
 					}
 				}
+
 				if ( PathEntity.Name != "" )
 				{
 					if ( pathent == null )
@@ -136,24 +192,44 @@ namespace rh
 				{
 					pathent = All.OfType<RevolverHysteriaMovementPathEntity>().FirstOrDefault();
 				}
-				Vector3 newpos = pathent.GetPointBetweenNodes( pathent.PathNodes[0], pathent.PathNodes[(0 + 1) % pathent.PathNodes.Count], 0f );
+				if ( pathent != null )
+				{
+					Vector3 newpos = pathent.GetPointBetweenNodes( pathent.PathNodes[0], pathent.PathNodes[(0 + 1) % pathent.PathNodes.Count], 0f );
 
-				Vector3 lookpos = pathent.GetPointBetweenNodes( pathent.PathNodes[0], pathent.PathNodes[(0 + 1) % pathent.PathNodes.Count], 0.1f );
-				Rotation = Rotation.LookAt( lookpos - newpos, Vector3.Up );
+					Vector3 lookpos = pathent.GetPointBetweenNodes( pathent.PathNodes[0], pathent.PathNodes[(0 + 1) % pathent.PathNodes.Count], 0.1f );
+					Rotation = Rotation.LookAt( lookpos - newpos, Vector3.Up );
 
-				Position = Vector3.Lerp( Position, newpos, 0.5f );
+					Position = Vector3.Lerp( Position, newpos, 0.5f );
 
+				}
+				else
+				{
+					simplepathent = All.OfType<SimplePathEnt>().FirstOrDefault();
+					if ( simplepathent != null )
+					{
+						Vector3 newpos = simplepathent.GetPointBetweenNodes( simplepathent.PathNodes[0], simplepathent.PathNodes[(0 + 1) % simplepathent.PathNodes.Count], 0f );
+
+						Vector3 lookpos = simplepathent.GetPointBetweenNodes( simplepathent.PathNodes[0], simplepathent.PathNodes[(0 + 1) % simplepathent.PathNodes.Count], 0.1f );
+						Rotation = Rotation.LookAt( lookpos - newpos, Vector3.Up );
+
+						Position = Vector3.Lerp( Position, newpos, 0.5f );
+
+					}
+				}
 				if ( (Game.Current as RevolverHysteriaGame).VRPlayers.Count > 0 && (PlayersReady >= (Game.Current as RevolverHysteriaGame).VRPlayers.Count || PlayersReady == 4) )
 				{
 					GameHasStarted = true;
 					TimeSinceEndNode = 0f;
-					(pathent.PathNodes[currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).OnPassed.Fire( this );
-					OnGameStart.Fire( this );
+					if ( pathent != null )
+					{
+						(pathent.PathNodes[currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).OnPassed.Fire( this );
+						OnGameStart.Fire( this );
+					}
 				}
 
 				return;
 			}
-			if ( PathEntity.Name != "" )
+			if ( PathEntity.Name != "" && pathent.IsValid() )
 			{
 				if ( pathent == null )
 				{
@@ -208,6 +284,40 @@ namespace rh
 			else
 			{
 				pathent = All.OfType<RevolverHysteriaMovementPathEntity>().FirstOrDefault();
+			}
+
+			if ( pathent == null && simplepathent == null )
+			{
+				simplepathent = All.OfType<SimplePathEnt>().FirstOrDefault();
+			}
+
+			if ( simplepathent != null )
+			{
+				movementProgress += (Time.Delta / GetNodeLength( currentnode )) * 50f * 0.75f;
+
+				float NodeTime = 1f / ((Time.Delta / GetNodeLength( currentnode )) * 50f);
+
+				float WaitTime = simplepathent.NodesWithSpawners.Contains( currentnode ) ? 10f : 0f;
+
+				if ( movementProgress > 1f && TimeSinceEndNode > WaitTime + (NodeTime / 120f) )
+				{
+					TimeSinceEndNode = 0f;
+
+					currentnode++;
+
+					if ( currentnode > simplepathent.PathNodes.Count - 1 )
+					{
+						currentnode = simplepathent.PathNodes.Count - 1;
+					}
+
+					movementProgress = 0f;
+				}
+				if ( movementProgress < 1f && currentnode != simplepathent.PathNodes.Count - 1 )
+				{
+					Vector3 newpos = simplepathent.GetPointBetweenNodes( simplepathent.PathNodes[currentnode], simplepathent.PathNodes[(currentnode + 1) % simplepathent.PathNodes.Count], movementProgress );
+					Rotation = Rotation.Slerp( Rotation, Rotation.LookAt( newpos - Position, Vector3.Up ), 0.25f );
+					Position = Vector3.Lerp( Position, newpos, 0.5f );
+				}
 			}
 		}
 	}

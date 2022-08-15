@@ -135,13 +135,13 @@ namespace rh
 
 			bool ShowGun = !(Owner as VRPlayer).cage.IsValid();
 
-			if ( hand == HandSide.Left )
+			if ( hand == HandSide.Left && Coin.IsValid() )
 			{
 				Gun.EnableDrawing = PutCoin && ShowGun;
 				Coin.EnableDrawing = !PutCoin;
 				SetAnimParameter( "handpose", (int)((Gun.EnableDrawing || Coin.EnableDrawing) ? HandPose.Revolver : HandPose.Empty) );
 			}
-			else
+			else if ( Coin.IsValid() )
 			{
 				Gun.EnableDrawing = ShowGun;
 				SetAnimParameter( "handpose", (int)(Gun.EnableDrawing ? HandPose.Revolver : HandPose.Empty) );

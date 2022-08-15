@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Threading;
 //
 // You don't need to put things in a namespace, but it doesn't hurt.
 //
@@ -33,6 +34,28 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 	public RevolverHysteriaGame()
 	{
 		Global.TickRate = 120;
+
+
+	}
+
+	[Net] ProceduralRHEnts ProcEntGen { get; set; }
+
+	public override void PostLevelLoaded()
+	{
+		base.PostLevelLoaded();
+
+		if ( IsServer )
+		{
+
+			platform = All.OfType<PlayerPlatform>().FirstOrDefault();
+
+			if ( platform == null )
+			{
+				Log.Trace( "Platform not found! This must not be an RH compatible map!" );
+				Log.Trace( "Attempting to create procedural RH entities..." );
+				ProcEntGen = new ProceduralRHEnts();
+			}
+		}
 	}
 
 	[Net] public List<VRPlayer> VRPlayers { get; set; }
@@ -70,7 +93,9 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 				if ( platform.GetAttachment( "player" + (VRPlayers.IndexOf( VRRig ) + 1) ).HasValue )
 				{
 					var tx = platform.GetAttachment( "player" + (VRPlayers.IndexOf( VRRig ) + 1) ).Value;
-					pawn.Transform = tx;
+					pawn.Position = tx.Position;
+					pawn.Rotation = tx.Rotation;
+					VRRig.Rotation = pawn.Rotation;
 				}
 			}
 			else
@@ -78,7 +103,9 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 				if ( platform.GetAttachment( "player" + ((VRPlayers.IndexOf( VRRig ) + 1) - 4) ).HasValue )
 				{
 					var tx = platform.GetAttachment( "player" + ((VRPlayers.IndexOf( VRRig ) + 1) - 4) ).Value;
-					pawn.Transform = tx;
+					pawn.Position = tx.Position;
+					pawn.Rotation = tx.Rotation;
+					VRRig.Rotation = pawn.Rotation;
 				}
 			}
 
@@ -114,7 +141,17 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 			}
 			else
 			{
-				pawn.Position = Vector3.Up * 64f;
+				var spawnpoints = Entity.All.OfType<SpawnPoint>();
+
+				// chose a random one
+				var randomSpawnPoint = spawnpoints.OrderBy( x => Guid.NewGuid() ).FirstOrDefault();
+
+				pawn.Position = randomSpawnPoint.Position + Vector3.Up * 64f;
+
+				if ( ProcEntGen != null )
+				{
+					pawn.Position = ProcEntGen.StartLocation.Position + Vector3.Up * 64f;
+				}
 			}
 		}
 	}
@@ -164,7 +201,7 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 			FirstPlayerArrived = true;
 		}
 
-		if ( !FirstPlayerArrived || TimeSinceFirstPlayer < 0.5f )
+		if ( !FirstPlayerArrived || TimeSinceFirstPlayer < 0.5f || !platform.IsValid() )
 		{
 			return;
 		}
@@ -178,7 +215,10 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 			}
 		}
 
-		if ( (deadplayers == VRPlayers.Count && IsServer && ((platform.GameHasStarted && VRPlayers.Count > 0) || DebugMode)) || (platform.pathent.IsValid() && (platform.currentnode == platform.pathent.PathNodes.Count - 1 && !(platform.pathent.PathNodes[platform.currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).AlternativePathEnabled) && IsServer) && !EndTriggered )
+		if ( (deadplayers == VRPlayers.Count && IsServer && ((platform.GameHasStarted && VRPlayers.Count > 0) || DebugMode))
+			|| (platform.pathent.IsValid() && (platform.currentnode == platform.pathent.PathNodes.Count - 1 && !(platform.pathent.PathNodes[platform.currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).AlternativePathEnabled) && IsServer)
+			|| (platform.simplepathent.IsValid() && (platform.currentnode == platform.simplepathent.PathNodes.Count - 1) && IsServer)
+			&& !EndTriggered )
 		{
 			TimeSinceEnded = 0f;
 			foreach ( var vrplayer in VRPlayers )
@@ -190,13 +230,17 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 				}
 			}
 
-			if ( platform.currentnode == platform.pathent.PathNodes.Count - 1 && !(platform.pathent.PathNodes[platform.currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).AlternativePathEnabled )
+			if ( platform.pathent.IsValid() && platform.currentnode == platform.pathent.PathNodes.Count - 1 && !(platform.pathent.PathNodes[platform.currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).AlternativePathEnabled )
 			{
 				platform.OnGameEndWin.Fire( platform );
 			}
-			else
+			else if ( platform.pathent.IsValid() )
 			{
 				platform.OnGameEndDied.Fire( platform );
+			}
+			else
+			{
+				platform.OnGameEndWin.Fire( platform );
 			}
 
 			board = new RHVotingBoard();

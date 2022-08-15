@@ -14,7 +14,9 @@ namespace rh
 		Dictionary<LeaderboardResult.Entry, RHScoreboardEntry> Rows = new();
 
 		Panel Canvas, Header;
-		
+
+		public Entity followEnt;
+
 		public RHScoreboard()
 		{
 			PanelBounds = new Rect( -500f, -500f, 1000f, 1000f );
@@ -22,7 +24,7 @@ namespace rh
 			AddClass( "scoreboard" );
 
 			AddHeader();
-			
+
 			Canvas = Add.Panel( "canvas" );
 
 			SetClass( "open", true );
@@ -39,21 +41,21 @@ namespace rh
 			Header.Add.Label( "name", "name" );
 			Header.Add.Label( "points", "points" );
 		}
-		
+
 		LeaderboardResult results;
-		
+
 		bool GotScores;
-		
+
 		public async Task WaitingForScores()
 		{
 			results = await GameServices.Leaderboard.Query( ident: Global.GameIdent, bucket: Global.MapName );
-			
+
 			GotScores = true;
 
 			//Log.Trace( "Got scores!" );
 
 			int ranking = 0;
-			
+
 			foreach ( var client in results.Entries )
 			{
 				ranking++;
@@ -104,7 +106,11 @@ namespace rh
 		{
 			base.Tick();
 
-
+			if ( followEnt != null )
+			{
+				Position = followEnt.Position + followEnt.Rotation.Forward * (15f * followEnt.Scale);
+				Rotation = followEnt.Rotation;
+			}
 
 			/*foreach ( var client in Rows.Keys.Except( Client.All ) )
 			{

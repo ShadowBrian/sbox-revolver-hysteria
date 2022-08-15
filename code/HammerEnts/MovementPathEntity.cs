@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json;
+
 namespace rh
 {
 	/// <summary>
@@ -16,6 +18,21 @@ namespace rh
 	[Title( "Revolver Hysteria Movement Path" ), Category( "Gameplay" ), Icon( "moving" )]
 	public partial class RevolverHysteriaMovementPathEntity : GenericPathEntity
 	{
+		public RevolverHysteriaMovementPathEntity()
+		{
+
+		}
+
+		public RevolverHysteriaMovementPathEntity( List<BasePathNode> nodes, int ID )
+		{
+			PathNodes = nodes;
+			HammerID = ID;
+		}
+
+		public void SetNodes( List<BasePathNode> nodes )
+		{
+			PathNodes = nodes;
+		}
 
 		public override void Spawn()
 		{
@@ -68,7 +85,7 @@ namespace rh
 
 					var targetPath = nodeNext.PathEntity as GenericPathEntity;
 					BasePathNode nodeNextThing = targetPath.PathNodes.First();
-					foreach( var n in targetPath.PathNodes )
+					foreach ( var n in targetPath.PathNodes )
 					{
 						if ( n.Entity == nodeNext ) nodeNextThing = n;
 					}
@@ -91,7 +108,7 @@ namespace rh
 
 					var targetPath = nodePrev.PathEntity as GenericPathEntity;
 					BasePathNode nodeNextThing = targetPath.PathNodes.First();
-					foreach( var n in targetPath.PathNodes )
+					foreach ( var n in targetPath.PathNodes )
 					{
 						if ( n.Entity == nodePrev ) nodeNextThing = n;
 					}

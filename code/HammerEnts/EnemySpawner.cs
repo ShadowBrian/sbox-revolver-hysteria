@@ -69,7 +69,7 @@ namespace rh
 			}
 		}
 
-
+		[Net] public bool DirectTargetMode { get; set; } = false;
 
 		bool StartedSpawnDelayTimer;
 
@@ -130,6 +130,8 @@ namespace rh
 						TimeSinceSpawnDelayStart = 0;
 						StartedSpawnDelayTimer = false;
 					}
+
+					ActiveNPC.DirectTargetMode = DirectTargetMode;
 				}
 			}
 

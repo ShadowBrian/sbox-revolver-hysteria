@@ -95,12 +95,15 @@ namespace rh
 			}
 		}
 
-		[ConCmd.Client("rh_reviveplayer")]
-		public void RevivePlayer(string name)
+		[ConCmd.Client( "rh_reviveplayer" )]
+		public void RevivePlayer( string name )
 		{
 			(FindByName( name ) as VRPlayer).HeadEnt.HitPoints = 5;
-			(FindByName( name ) as VRPlayer).cage.UsedCage = true;
-			(FindByName( name ) as VRPlayer).cage = null;
+			if ( (FindByName( name ) as VRPlayer).cage.IsValid() )
+			{
+				(FindByName( name ) as VRPlayer).cage.UsedCage = true;
+				(FindByName( name ) as VRPlayer).cage = null;
+			}
 		}
 
 		public override void FrameSimulate( Client cl )

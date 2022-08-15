@@ -83,6 +83,8 @@ namespace rh
 
 		int ChosenShootTarget;
 
+		[Net] public bool DirectTargetMode { get; set; } = false;
+
 		[Net] public ModelEntity Pistol { get; set; }
 
 		public override void Spawn()
@@ -458,6 +460,10 @@ namespace rh
 
 			if ( MovementhPath.Count == 0 )
 			{
+				if ( DirectTargetMode && enemyResource.WeaponType != EnemyWeapon.Unarmed )
+				{
+					TargetDestination = platform.Position + Vector3.Random * 200f;
+				}
 				NavPathBuilder builder = NavMesh.PathBuilder( Position );
 				NavPath path = builder.Build( TargetDestination );
 				if ( path != null && path.Segments != null && path.Segments.Count > 1 )
