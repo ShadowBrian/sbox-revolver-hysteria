@@ -189,7 +189,7 @@ namespace rh
 		public void PickRandomTarget()
 		{
 			ChosenShootTarget = Rand.Int( 1, 4 );
-			if ( (Game.Current as RevolverHysteriaGame).VRPlayers[(ChosenShootTarget - 1) % (Game.Current as RevolverHysteriaGame).VRPlayers.Count].HeadEnt.HitPoints <= 0 )
+			if ( (Game.Current as RevolverHysteriaGame).VRPlayers.Count > 0 && (Game.Current as RevolverHysteriaGame).VRPlayers[(ChosenShootTarget - 1) % (Game.Current as RevolverHysteriaGame).VRPlayers.Count].HeadEnt.HitPoints <= 0 )
 			{
 				ChosenShootTarget += 1;
 				if ( ChosenShootTarget > 4 )
@@ -362,13 +362,27 @@ namespace rh
 			}
 		}
 
+		public bool ShowPathing;
+
+		[ConCmd.Server( "rh_debug_show_npc_pathing" )]
+		public static void ShowPathingConcmd( int value )
+		{
+			foreach ( var spawner in Entity.All.OfType<EnemySpawner>() )
+			{
+				spawner.SetDebugPathing( value );
+			}
+		}
+
 		public void ProcessPath()
 		{
-			/*for ( int i = 0; i < MovementhPath.Count - 1; i++ )
+			if ( ShowPathing )
 			{
-				DebugOverlay.Line( MovementhPath[i], MovementhPath[i + 1], Color.Red );
-				DebugOverlay.Line( MovementhPath[i], MovementhPath[i] + Vector3.Up * 10f, Color.Red );
-			}*/
+				for ( int i = 0; i < MovementhPath.Count - 1; i++ )
+				{
+					DebugOverlay.Line( MovementhPath[i], MovementhPath[i + 1], Color.Red );
+					DebugOverlay.Line( MovementhPath[i], MovementhPath[i] + Vector3.Up * 10f, Color.Red );
+				}
+			}
 
 			if ( Vector3.DistanceBetween( Position, MovementhPath[CurrentPoint] ) < 11f && CurrentPoint < MovementhPath.Count - 1 )
 			{
@@ -460,9 +474,16 @@ namespace rh
 
 			if ( MovementhPath.Count == 0 )
 			{
-				if ( DirectTargetMode && enemyResource.WeaponType != EnemyWeapon.Unarmed )
+				if ( DirectTargetMode && enemyResource.WeaponType != EnemyWeapon.Unarmed && enemyResource.WeaponType != EnemyWeapon.Boxing )
 				{
-					TargetDestination = platform.Position + Vector3.Random * 200f;
+					if ( Vector3.DistanceBetween( TargetDestination, platform.Position ) > 300f )
+					{
+						TargetDestination -= (TargetDestination - platform.Position).Normal.WithZ( 0 ) * 60f;
+					}
+					else if ( Vector3.DistanceBetween( TargetDestination, platform.Position ) < 200f )
+					{
+						TargetDestination += (TargetDestination - platform.Position).Normal.WithZ( 0 ) * 20f;
+					}
 				}
 				NavPathBuilder builder = NavMesh.PathBuilder( Position );
 				NavPath path = builder.Build( TargetDestination );
@@ -536,7 +557,7 @@ namespace rh
 
 			MoveHelper move = new( Position, Velocity );
 			move.MaxStandableAngle = 50;
-			move.Trace = move.Trace.Ignore( this ).Size( bbox );
+			move.Trace = move.Trace.Ignore( this ).WorldOnly().Size( bbox );
 
 			if ( !Velocity.IsNearlyZero( 0.001f ) )
 			{

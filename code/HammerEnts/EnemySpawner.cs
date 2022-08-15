@@ -75,6 +75,17 @@ namespace rh
 
 		TimeSince TimeSinceSpawnDelayStart;
 
+		bool debugpathing;
+
+		public void SetDebugPathing( int val )
+		{
+			debugpathing = val > 0 ? true : false;
+			if ( ActiveNPC.IsValid() )
+			{
+				ActiveNPC.ShowPathing = true;
+			}
+		}
+
 		[Event.Tick.Server]
 		public void Tick()
 		{
@@ -102,12 +113,29 @@ namespace rh
 				{
 					if ( enemytype == null )
 					{
-						ActiveNPC = BaseEnemyClass.FromPath( Rand.FromList( AllEnemies ) );
+						string chosen = Rand.FromList( AllEnemies );
+						EnemyResource reso = ResourceLibrary.Get<EnemyResource>( chosen );
+
+						if ( reso.MovementType == EnemyMovementType.Flying )
+						{
+							if ( Trace.Ray( Position + Vector3.Up * 2f, Position + Vector3.Up * 200f ).WorldOnly().Run().Hit )
+							{
+								return;
+							}
+						}
+
+						ActiveNPC = BaseEnemyClass.FromPath( chosen );
 					}
 					else
 					{
 						ActiveNPC = BaseEnemyClass.FromPath( enemytype );
 					}
+
+					if ( debugpathing )
+					{
+						ActiveNPC.ShowPathing = true;
+					}
+
 					EnemiesSpawned++;
 					ActiveNPC.Position = Position + Vector3.Up;
 					if ( Children.Count == 0 )

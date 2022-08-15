@@ -45,23 +45,47 @@ namespace rh
 			Rand.SetSeed( Global.MapName.Length );
 
 			// chose a random one
-			var randomSpawnPoint = spawnpoints.Shuffle<SpawnPoint>( new Random( Global.MapName.Length + 12 ) ).FirstOrDefault();
+			Entity randomSpawnPoint = spawnpoints.Shuffle<SpawnPoint>( new Random( Global.MapName.Length + 2 ) ).FirstOrDefault();
 
 			StartLocation = randomSpawnPoint.Transform;
 
-			IEnumerable<SpawnPoint> allspawns = spawnpoints.Shuffle<SpawnPoint>( new Random( Global.MapName.Length + 1201 ) );
-
-			float MinimumDistanceEnd = 0f;
-
+			IEnumerable<SpawnPoint> allspawns = spawnpoints.Shuffle<SpawnPoint>( new Random( Global.MapName.Length + 1206 ) );
 			int iterations = 0;
-
-			for ( int i = 0; i < allspawns.Count() - 1; i++ )
+			if ( allspawns.Count() > 5 )
 			{
-				float dist = Vector3.DistanceBetween( StartLocation.Position, allspawns.ElementAt( i ).Position );
-				if ( dist > MinimumDistanceEnd )
+				float MinimumDistanceEnd = 0f;
+
+				for ( int i = 0; i < allspawns.Count() - 1; i++ )
 				{
-					randomSpawnPoint = allspawns.ElementAt( i );
-					MinimumDistanceEnd = dist;
+					float dist = Vector3.DistanceBetween( StartLocation.Position, allspawns.ElementAt( i ).Position );
+					//Log.Trace( "new max: " + dist );
+					if ( dist > MinimumDistanceEnd )
+					{
+						randomSpawnPoint = allspawns.ElementAt( i );
+						MinimumDistanceEnd = dist;
+
+
+
+						iterations++;
+					}
+				}
+			}
+			else
+			{
+				IEnumerable<PointLightEntity> alllights = Entity.All.OfType<PointLightEntity>().Shuffle( new Random( Global.MapName.Length + 2 ) );
+
+				float MinimumDistanceEnd = 0f;
+
+				for ( int i = 0; i < alllights.Count() - 1; i++ )
+				{
+					float dist = Vector3.DistanceBetween( StartLocation.Position, alllights.ElementAt( i ).Position );
+					//Log.Trace( "new max: " + dist );
+					if ( dist > MinimumDistanceEnd )
+					{
+						randomSpawnPoint = alllights.ElementAt( i );
+						MinimumDistanceEnd = dist;
+						iterations++;
+					}
 				}
 			}
 
@@ -246,10 +270,22 @@ namespace rh
 			}
 		}
 
-		/*[Event.Tick.Server]
+		public bool showpath;
+
+		[ConCmd.Server( "rh_debug_showsimplepath" )]
+		public static void ShowDebugPath()
+		{
+			ProceduralRHEnts ent = Entity.All.OfType<ProceduralRHEnts>().FirstOrDefault();
+			if ( ent.IsValid() )
+			{
+				ent.showpath = true;
+			}
+		}
+
+		[Event.Tick.Server]
 		public void Tick()
 		{
-			if ( pathEnt != null )
+			if ( showpath && pathEnt != null )
 			{
 				for ( int i = 0; i < pathEnt.PathNodes.Count - 1; i++ )
 				{
@@ -262,7 +298,7 @@ namespace rh
 					{
 						var lerpPos = pathEnt.GetPointBetweenNodes( pathEnt.PathNodes[i], pathEnt.PathNodes[i + 1], i2 / 10f );
 
-						DebugOverlay.Line( lerpPos, lastPos, Color.Green );
+						DebugOverlay.Line( lerpPos, lastPos, Color.Green, 0f, false );
 
 						lastPos = lerpPos;
 					}
@@ -271,6 +307,6 @@ namespace rh
 					//DebugOverlay.Line( MovementhPath[i], MovementhPath[i] + Vector3.Up * 10f, Color.Red );
 				}
 			}
-		}*/
+		}
 	}
 }

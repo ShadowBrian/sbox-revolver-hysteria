@@ -18,7 +18,7 @@
     "MaxPlayers": 8,
     "MinPlayers": 1,
     "GameNetworkType": "Multiplayer",
-    "MapSelect": "Tagged",
+    "MapSelect": "Unrestricted",
     "MapList": [
       "shadb.rh_facility"
     ],

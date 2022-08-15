@@ -67,6 +67,12 @@ namespace rh
 			}
 		}
 
+		[ConCmd.Server( "rh_debug_startgame" )]
+		public static void DebugStartGame()
+		{
+			Entity.All.OfType<PlayerPlatform>().FirstOrDefault().GameHasStarted = true;
+		}
+
 		public override void Spawn()
 		{
 			base.Spawn();
@@ -276,7 +282,7 @@ namespace rh
 				if ( movementProgress < 1f && currentnode != pathent.PathNodes.Count - 1 )
 				{
 					Vector3 newpos = pathent.GetPointBetweenNodes( pathent.PathNodes[currentnode], pathent.PathNodes[(currentnode + 1) % pathent.PathNodes.Count], movementProgress );
-					Rotation = Rotation.Slerp( Rotation, Rotation.LookAt( newpos - Position, Vector3.Up ), 0.5f );
+					Rotation = Rotation.Slerp( Rotation, Rotation.LookAt( (newpos - Position).WithZ( 0 ), Vector3.Up ), 0.5f );
 					Position = Vector3.Lerp( Position, newpos, 0.5f );
 				}
 
@@ -315,7 +321,7 @@ namespace rh
 				if ( movementProgress < 1f && currentnode != simplepathent.PathNodes.Count - 1 )
 				{
 					Vector3 newpos = simplepathent.GetPointBetweenNodes( simplepathent.PathNodes[currentnode], simplepathent.PathNodes[(currentnode + 1) % simplepathent.PathNodes.Count], movementProgress );
-					Rotation = Rotation.Slerp( Rotation, Rotation.LookAt( newpos - Position, Vector3.Up ), 0.25f );
+					Rotation = Rotation.Slerp( Rotation, Rotation.LookAt( (newpos - Position).WithZ( 0 ), Vector3.Up ), 0.25f );
 					Position = Vector3.Lerp( Position, newpos, 0.5f );
 				}
 			}

@@ -195,6 +195,11 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 
 		int deadplayers = 0;
 
+		if ( VRPlayers.Count == 0 && platform.IsValid() && platform.GameHasStarted )
+		{
+			DebugMode = true;
+		}
+
 		if ( (VRPlayers.Count > 0 || DebugMode) && !FirstPlayerArrived )
 		{
 			TimeSinceFirstPlayer = 0f;
@@ -215,7 +220,7 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 			}
 		}
 
-		if ( (deadplayers == VRPlayers.Count && IsServer && ((platform.GameHasStarted && VRPlayers.Count > 0) || DebugMode))
+		if ( (deadplayers == VRPlayers.Count && IsServer && ((platform.GameHasStarted && VRPlayers.Count > 0)))
 			|| (platform.pathent.IsValid() && (platform.currentnode == platform.pathent.PathNodes.Count - 1 && !(platform.pathent.PathNodes[platform.currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).AlternativePathEnabled) && IsServer)
 			|| (platform.simplepathent.IsValid() && (platform.currentnode == platform.simplepathent.PathNodes.Count - 1) && IsServer)
 			&& !EndTriggered )

@@ -1,11 +1,14 @@
-﻿using Sandbox;
+﻿using rh;
+using Sandbox;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Sandbox;
 
 partial class FlatPawn : AnimatedEntity
 {
+	PlayerPlatform platform;
 	/// <summary>
 	/// Called when the entity is first created 
 	/// </summary>
@@ -21,6 +24,7 @@ partial class FlatPawn : AnimatedEntity
 		EnableDrawing = true;
 		EnableHideInFirstPerson = true;
 		EnableShadowInFirstPerson = true;
+		platform = Entity.All.OfType<PlayerPlatform>().FirstOrDefault();
 	}
 
 	public override void PostCameraSetup( ref CameraSetup camSetup )
@@ -69,6 +73,97 @@ partial class FlatPawn : AnimatedEntity
 		if ( helper.TryMove( Time.Delta ) > 0 )
 		{
 			Position = helper.Position;
+		}
+
+		if ( Input.Pressed( InputButton.PrimaryAttack ) && (Game.Current as RevolverHysteriaGame).VRPlayers.Count == 0 && platform.IsValid() && platform.GameHasStarted )
+		{
+			ShootBullet( 0.01f, 100f, 500f, 1f );
+			PlaySound( "revolver_fire" );
+		}
+
+	}
+
+	[ClientRpc]
+	public void CreateTracerEffect( Vector3 hitPosition, Vector3 startPosition )
+	{
+		// get the muzzle position on our effect entity - either viewmodel or world model
+		//var pos = Transform;//EffectEntity.GetAttachment( "muzzle" ) ??
+
+		var system = Particles.Create( "particles/tracer.standard.vpcf" );
+		system?.SetPosition( 0, startPosition );
+		system?.SetPosition( 1, hitPosition );
+	}
+
+	public virtual IEnumerable<TraceResult> TraceBullet( Vector3 start, Vector3 end, float radius = 2.0f )
+	{
+		bool underWater = Trace.TestPoint( start, "water" );
+
+		var trace = Trace.Ray( start, end )
+				.UseHitboxes()
+				.WithAnyTags( "solid", "npc" )
+				.WithoutTags( "player" )
+				.Ignore( this )
+				.Size( radius );
+
+
+
+		//
+		// If we're not underwater then we can hit water
+		//
+		if ( !underWater )
+			trace = trace.WithAnyTags( "water" );
+
+		var tr = trace.Run();
+
+		if ( tr.Entity is ButtonEntity butt )
+		{
+			butt.OnUse( Owner );
+		}
+
+		if ( tr.Hit )
+			yield return tr;
+
+		//
+		// Another trace, bullet going through thin material, penetrating water surface?
+		//
+	}
+
+	public virtual void ShootBullet( float spread, float force, float damage, float bulletSize, int bulletCount = 1 )
+	{
+		//
+		// Seed rand using the tick, so bullet cones match on client and server
+		//
+		Rand.SetSeed( Time.Tick );
+
+		for ( int i = 0; i < bulletCount; i++ )
+		{
+			var forward = Rotation.Forward;
+			forward += (Vector3.Random + Vector3.Random + Vector3.Random + Vector3.Random) * spread * 0.25f;
+			forward = forward.Normal;
+
+			//
+			// ShootBullet is coded in a way where we can have bullets pass through shit
+			// or bounce off shit, in which case it'll return multiple results
+			//
+			foreach ( var tr in TraceBullet( Position, Position + forward * 5000, bulletSize ) )
+			{
+				tr.Surface.DoBulletImpact( tr );
+
+				if ( tr.Distance > 200 )
+				{
+					CreateTracerEffect( tr.EndPosition, Position );
+				}
+
+				if ( !IsServer ) continue;
+				if ( !tr.Entity.IsValid() ) continue;
+
+				var damageInfo = DamageInfo.FromBullet( tr.EndPosition, forward * 100 * force, damage )
+					.UsingTraceResult( tr )
+					.WithAttacker( Owner )
+					.WithWeapon( this );
+
+				tr.Entity.TakeDamage( damageInfo );
+			}
 		}
 	}
 
