@@ -42,7 +42,7 @@ namespace rh
 
 			var spawnpoints = Entity.All.OfType<SpawnPoint>();
 
-			Rand.SetSeed( Global.MapName.Length );
+			Rand.SetSeed( Global.MapName.Length + 18 );
 
 			// chose a random one
 			Entity randomSpawnPoint = spawnpoints.Shuffle<SpawnPoint>( new Random( Global.MapName.Length + 2 ) ).FirstOrDefault();
@@ -63,9 +63,6 @@ namespace rh
 					{
 						randomSpawnPoint = allspawns.ElementAt( i );
 						MinimumDistanceEnd = dist;
-
-
-
 						iterations++;
 					}
 				}
@@ -90,12 +87,19 @@ namespace rh
 			}
 
 
-			if ( iterations >= allspawns.Count() - 1 )
+			if ( Vector3.DistanceBetween( randomSpawnPoint.Position, StartLocation.Position ) < 2500f )
 			{
 				Log.Trace( "Couldn't find far away enough end point! Trying to generate one." );
 				Transform newpos = new Transform();
 				newpos.Position = StartLocation.Position;
-				newpos.Position += Vector3.Random * 4500f;
+				Vector3 addvec = Vector3.Random * 4555f;
+
+				while ( addvec.Length < 3500f )
+				{
+					addvec = Vector3.Random * 4551f;
+				}
+
+				newpos.Position += addvec;
 
 				newpos.Position = newpos.Position.WithZ( randomSpawnPoint.Position.z );
 
@@ -124,6 +128,31 @@ namespace rh
 			FigureOutEnemySpawns();
 		}
 
+		public void PathTooDullRedo()
+		{
+			Log.Trace( "Path was too dull! Trying to generate a new one." );
+			Transform newpos = new Transform();
+			newpos.Position = StartLocation.Position;
+			Vector3 addvec = Vector3.Random * 4555f;
+
+			while ( addvec.Length < 3500f )
+			{
+				addvec = Vector3.Random * 4551f;
+			}
+
+			newpos.Position += addvec;
+
+			newpos.Position = newpos.Position.WithZ( EndLocation.Position.z );
+
+			Vector3 finalpos = Vector3.Zero;
+
+			NavArea.GetClosestNav( newpos.Position, NavAgentHull.Agent2, GetNavAreaFlags.NoFlags, ref finalpos );
+
+			newpos.Position = finalpos;
+
+			EndLocation = newpos;
+		}
+
 		public void BuildPath()
 		{
 			NavPathBuilder builder = NavMesh.PathBuilder( StartLocation.Position );
@@ -141,6 +170,13 @@ namespace rh
 			else
 			{
 				MovementhPath.Clear();
+			}
+
+			if ( MovementhPath.Count < 5 )
+			{
+				MovementhPath.Clear();
+				PathTooDullRedo();
+				BuildPath();
 			}
 		}
 
@@ -236,7 +272,7 @@ namespace rh
 
 						if ( finalpos != Vector3.Zero )
 						{
-							spawner.Position = finalpos.WithZ( node.Position.z );
+							spawner.Position = finalpos;
 							finalpos = node.Position;
 
 							EnemySpawnerNode enemynode = new EnemySpawnerNode();
@@ -276,6 +312,7 @@ namespace rh
 		public static void ShowDebugPath()
 		{
 			ProceduralRHEnts ent = Entity.All.OfType<ProceduralRHEnts>().FirstOrDefault();
+
 			if ( ent.IsValid() )
 			{
 				ent.showpath = true;

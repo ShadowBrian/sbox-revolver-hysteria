@@ -94,6 +94,11 @@ namespace rh
 				return;
 			}
 
+			if ( debugpathing )
+			{
+				DebugOverlay.Line( Position, Position + Vector3.Up * 100f, Color.Blue, 0f, false );
+			}
+
 			if ( ((platform.GameHasStarted && platform.currentnode == AssociatedNodeNumber) || (InputSpawnedEnemy)) && !(Game.Current as RevolverHysteriaGame).EndTriggered )
 			{
 				if ( spawndelay > 0 )

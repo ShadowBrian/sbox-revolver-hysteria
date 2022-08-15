@@ -20,7 +20,9 @@
     "GameNetworkType": "Multiplayer",
     "MapSelect": "Unrestricted",
     "MapList": [
-      "shadb.rh_facility"
+      "shadb.rh_facility",
+      "baks.office",
+      "facepunch.construct"
     ],
     "RankType": "Best",
     "PerMapRanking": true,
