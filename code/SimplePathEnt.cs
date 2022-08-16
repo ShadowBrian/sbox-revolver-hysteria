@@ -50,7 +50,7 @@ namespace rh
 			posNext = end.Position;
 			tanInNext = end.Position - end.Rotation.Forward * mult;
 
-			tanInNext = tanOut.WithZ( end.Position.z );
+			tanInNext = tanInNext.WithZ( end.Position.z );
 
 			Vector3 lerp1 = pos.LerpTo( tanOut, t );
 			Vector3 lerp2 = tanOut.LerpTo( tanInNext, t );
