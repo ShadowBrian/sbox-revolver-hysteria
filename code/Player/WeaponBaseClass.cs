@@ -41,11 +41,11 @@ namespace rh
 			var trace = Trace.Ray( start, end )
 					.UseHitboxes()
 					.WithAnyTags( "solid", "npc" )
-					.WithoutTags("player")
+					.WithoutTags( "player" )
 					.Ignore( this )
 					.Size( radius );
 
-		
+
 
 			//
 			// If we're not underwater then we can hit water
@@ -55,9 +55,9 @@ namespace rh
 
 			var tr = trace.Run();
 
-			if (tr.Entity is ButtonEntity butt )
+			if ( tr.Entity is ButtonEntity butt )
 			{
-				butt.OnUse(Owner);
+				butt.OnUse( Owner );
 			}
 
 			if ( tr.Hit )
@@ -130,7 +130,7 @@ namespace rh
 				TiltRecoil = Rand.Float( 0.5f, 1.2f );
 				AmmoLeft--;
 
-				ShootBullet( 0.01f, 100f, 50f, 1f );
+				ShootBullet( 0.01f, 10f, 50f, 1f );
 
 				PlaySound( "revolver_fire" );
 			}

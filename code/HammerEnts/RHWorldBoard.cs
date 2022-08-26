@@ -15,6 +15,10 @@ namespace rh
 	[Model( Model = "models/scoreboard.vmdl" )]
 	partial class RHWorldBoard : ModelEntity
 	{
+
+		[Property]
+		public int PlayerCount { get; set; } = 0;
+
 		[Net, Predicted]
 		RHScoreboard board { get; set; }
 
@@ -27,6 +31,7 @@ namespace rh
 		public override void ClientSpawn()
 		{
 			board = new RHScoreboard();
+			board.NumberToDisplay = PlayerCount;
 			board.Position = Position + Rotation.Forward * (15f * Scale);
 			board.Rotation = Rotation;
 			board.WorldScale = 7.75f * Scale;

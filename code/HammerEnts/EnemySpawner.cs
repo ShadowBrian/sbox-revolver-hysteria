@@ -32,6 +32,11 @@ namespace rh
 
 		PlayerPlatform platform;
 
+		/// <summary>
+		/// Fired when the last enemy has spawned and died.
+		/// </summary>
+		public Output LastEnemySpawned { get; set; }
+
 		[Net] BaseEnemyClass ActiveNPC { get; set; }
 
 		[Property( Name = "enemytype" ), ResourceType( "rhenmy" )]
@@ -76,6 +81,8 @@ namespace rh
 		TimeSince TimeSinceSpawnDelayStart;
 
 		bool debugpathing;
+
+		bool DoneSpawning;
 
 		public void SetDebugPathing( int val )
 		{
@@ -165,6 +172,12 @@ namespace rh
 					}
 
 					ActiveNPC.DirectTargetMode = DirectTargetMode;
+				}
+
+				if ( !DoneSpawning && spawnlimit != 0 && EnemiesSpawned >= spawnlimit && !ActiveNPC.IsValid() )
+				{
+					LastEnemySpawned.Fire( this );
+					DoneSpawning = true;
 				}
 			}
 

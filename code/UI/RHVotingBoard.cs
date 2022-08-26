@@ -12,8 +12,9 @@ namespace rh
 {
 	public partial class RHVotingBoard : ModelEntity
 	{
-		[Net]public Dictionary<string, int> MapChoices { get; set; } = new Dictionary<string, int>();
+		[Net] public Dictionary<string, int> MapChoices { get; set; } = new Dictionary<string, int>();
 		[Net] List<string> allmaps { get; set; } = new List<string>();
+
 		public override void Spawn()
 		{
 			//SetModel( "models/player/mapvote_panel.vmdl" );
@@ -24,13 +25,15 @@ namespace rh
 
 			allmaps = RevolverHysteriaGame.GetMaps();
 
+
+
 			for ( int i = 0; i < allmaps.Count; i++ )
 			{
 				MapChoices.Add( allmaps[i], 0 );
 				RHVotingChoice choice = new RHVotingChoice();
 				if ( allmaps.Count > 1 )
 				{
-					choice.Position = Position + (Rotation.Left * 50f * (i - ((allmaps.Count-1) / 2f)));
+					choice.Position = Position + (Rotation.Left * 50f * (i - ((allmaps.Count - 1) / 2f)));
 				}
 				else
 				{
@@ -63,9 +66,11 @@ namespace rh
 			}
 			else
 			{
-				return allmaps[Rand.Int(0,allmaps.Count-1)];
+				return allmaps[Rand.Int( 0, allmaps.Count - 1 )];
 			}
 		}
+
+		TimeSince timesincespawned;
 
 		[Event.Tick.Client]
 		public void Tick()

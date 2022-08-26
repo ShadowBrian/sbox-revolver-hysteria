@@ -32,7 +32,7 @@ namespace rh
 		[Net] public Transform StartLocation { get; set; }
 		[Net] public Transform EndLocation { get; set; }
 
-		List<int> EnemySpawnersToPlace = new List<int> { 2, 3, 3, 4, 3, 4, 5, 4, 5, 5, 6, 7, 8 };
+		List<int> EnemySpawnersToPlace = new List<int> { 5, 5, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 9, 9, 9 };
 
 		int Difficultygradientspot;
 
@@ -92,11 +92,11 @@ namespace rh
 				Log.Trace( "Couldn't find far away enough end point! Trying to generate one." );
 				Transform newpos = new Transform();
 				newpos.Position = StartLocation.Position;
-				Vector3 addvec = Vector3.Random * 4555f;
+				Vector3 addvec = Vector3.Random * 2055f;
 
-				while ( addvec.Length < 3500f )
+				while ( addvec.Length < 1000f )
 				{
-					addvec = Vector3.Random * 4551f;
+					addvec = Vector3.Random * 2051f;
 				}
 
 				newpos.Position += addvec;
@@ -155,7 +155,7 @@ namespace rh
 
 		public void BuildPath()
 		{
-			NavPathBuilder builder = NavMesh.PathBuilder( StartLocation.Position );
+			NavPathBuilder builder = NavMesh.PathBuilder( StartLocation.Position ).WithPathSpeed( 50 ).WithStartAcceleration( StartLocation.Rotation.Forward * 50f );
 			builder.WithAgentHull( NavAgentHull.Agent2 );
 
 			NavPath path = builder.Build( EndLocation.Position );
@@ -258,7 +258,7 @@ namespace rh
 
 						spawnpos = spawnpos.WithZ( node.Position.z );
 
-						TraceResult FloorCheck = Trace.Ray( spawnpos, spawnpos - Vector3.Up * 1000f ).WorldOnly().Run();
+						TraceResult FloorCheck = Trace.Ray( spawnpos + Vector3.Up, spawnpos - Vector3.Up * 1000f ).WorldOnly().Run();
 						if ( FloorCheck.Hit )
 						{
 							spawnpos = spawnpos.WithZ( FloorCheck.EndPosition.z );

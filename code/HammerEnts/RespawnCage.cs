@@ -25,13 +25,22 @@ namespace rh
 		{
 			base.Spawn();
 			SetupPhysicsFromModel( PhysicsMotionType.Keyframed );
-			SetAnimGraph( "rh/animgraphs/respawncage.vanmgrph" );
 		}
 
 		[Event.Tick]
 		public void tick()
 		{
 			SetAnimParameter( "opencage", UsedCage );
+		}
+
+		[Input]
+		public void DisableCage()
+		{
+			AnimatedEntity placeholdercage = new AnimatedEntity( GetModelName() );
+			placeholdercage.Transform = Transform;
+			placeholdercage.SetAnimParameter( "opencage", true );
+			UsedCage = true;
+			Delete();
 		}
 
 		public override void TakeDamage( DamageInfo info )

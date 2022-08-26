@@ -175,7 +175,7 @@ namespace rh
 			{
 				if ( MathF.Abs( TargetDestination.z - Position.z ) < 5f )
 				{
-					TargetDestination += Vector3.Up * 100f;
+					TargetDestination += Vector3.Up * 200f * (Scale / 2f);
 					FlyingType = true;
 				}
 			}
@@ -327,12 +327,21 @@ namespace rh
 			label.Rotation = rot;
 		}
 
+		[ClientRpc]
+		public void DoHeadshotPopup( Vector3 pos, Rotation rot, Client client )
+		{
+			WorldLabel label = new WorldLabel( "head shot", new Transform( pos ), TextType.Headshot, (Vector3.Up * 10f + (rot.Left * Rand.Float( -2f, 2f ))) * 0.15f, false, 2f );
+			label.Position = pos;
+			label.Rotation = rot;
+		}
+
 
 		public override void TakeDamage( DamageInfo info )
 		{
 			if ( GetBoneName( info.BoneIndex ) == "head" )
 			{
 				info.Damage *= 2.5f;
+				DoHeadshotPopup( info.Position, Rotation.LookAt( info.Attacker.Position - info.Position, Vector3.Up * 10f ), info.Attacker.Client );
 			}
 
 			base.TakeDamage( info );
@@ -354,6 +363,11 @@ namespace rh
 					scorecount += (enemyResource.Type == EnemyType.SuperArmored ? 200 : 0);
 					scorecount += (enemyResource.Type == EnemyType.Boss ? 2000 : 0);
 					scorecount -= (enemyResource.WeaponType == EnemyWeapon.Unarmed ? 600 : 0);
+
+					if ( GetBoneName( info.BoneIndex ) == "head" )
+					{
+						scorecount += 100;
+					}
 
 					info.Attacker.Client.AddInt( "score", scorecount );
 
@@ -388,7 +402,7 @@ namespace rh
 			{
 				CurrentPoint++;
 			}
-			else
+			else if ( CurrentPoint >= MovementhPath.Count - 1 )
 			{
 				MovementhPath.Clear();
 				CurrentPoint = 0;
@@ -442,7 +456,7 @@ namespace rh
 					break;
 				case EnemyWeapon.Unarmed:
 					helper.HoldType = CitizenAnimationHelper.HoldTypes.None;
-					if ( Velocity.Length < 0.5f )
+					if ( Vector3.DistanceBetween( Position, TargetDestination ) < 10f )
 					{
 						SetAnimParameter( "idle_states", 3 );
 					}
@@ -485,7 +499,7 @@ namespace rh
 						TargetDestination += (TargetDestination - platform.Position).Normal.WithZ( 0 ) * 20f;
 					}
 				}
-				NavPathBuilder builder = NavMesh.PathBuilder( Position );
+				NavPathBuilder builder = NavMesh.PathBuilder( Position ).WithNoOptimization();
 				NavPath path = builder.Build( TargetDestination );
 				if ( path != null && path.Segments != null && path.Segments.Count > 1 )
 				{
@@ -493,10 +507,6 @@ namespace rh
 					{
 						MovementhPath.Add( seg.Position );
 					}
-				}
-				else
-				{
-					MovementhPath.Clear();
 				}
 			}
 
@@ -524,15 +534,16 @@ namespace rh
 
 					if ( enemyResource.MovementType == EnemyMovementType.Flying )
 					{
-						GoPath = GoPath.WithZ( platform.Position.z + 100f );
+						GoPath = GoPath.WithZ( platform.Position.z + (200f * (Scale / 2f)) );
 					}
 
 					//DebugOverlay.Sphere( GoPath, 10f, Color.Green );
 
 					if ( Vector3.DistanceBetween( Position, GoPath ) > 10f )
 					{
-						Velocity = -(Position - GoPath).Normal * 150f;
-						InputVelocity = -(Position - GoPath).Normal * 150f;
+						float finaldist = Vector3.DistanceBetween( Position, TargetDestination );
+						Velocity = -(Position - GoPath).Normal * 150f * (finaldist > 1000f ? 3f : 1f);
+						InputVelocity = -(Position - GoPath).Normal * 150f * (finaldist > 1000f ? 3f : 1f);
 					}
 					else
 					{

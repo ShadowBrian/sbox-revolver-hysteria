@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
 
 namespace rh
 {
 	public partial class RHScoreboard : WorldPanel
 	{
 		Dictionary<LeaderboardResult.Entry, RHScoreboardEntry> Rows = new();
+
+		public int NumberToDisplay = 0;
 
 		Panel Canvas, Header;
 
@@ -29,16 +32,17 @@ namespace rh
 
 			SetClass( "open", true );
 
-
 			WaitingForScores();
 		}
+
+		Label NameLabel;
 
 		bool AddedPing;
 
 		protected virtual void AddHeader()
 		{
 			Header = Add.Panel( "header" );
-			Header.Add.Label( "name", "name" );
+			NameLabel = Header.Add.Label( "name", "name" );
 			Header.Add.Label( "points", "points" );
 		}
 
@@ -48,7 +52,17 @@ namespace rh
 
 		public async Task WaitingForScores()
 		{
-			results = await GameServices.Leaderboard.Query( ident: Global.GameIdent, bucket: Global.MapName );
+			if ( NumberToDisplay != 0 )
+			{
+				NameLabel.Text = NumberToDisplay + " players";
+				results = await GameServices.Leaderboard.Query( ident: Global.GameIdent, bucket: Global.MapName + "_" + NumberToDisplay + "players" );
+			}
+			else
+			{
+				NameLabel.Text = VRPlayerCount + " players";
+
+				results = await GameServices.Leaderboard.Query( ident: Global.GameIdent, bucket: Global.MapName + "_" + VRPlayerCount + "players" );
+			}
 
 			GotScores = true;
 
@@ -65,42 +79,23 @@ namespace rh
 				//Log.Trace( ranking + "." + client.DisplayName + " " + client.Rating );
 			}
 
-			/*if ( results.Entries.Count > 0 )
-			{
-				TimeSpan t = TimeSpan.FromSeconds( float.Parse( results.Entries.First().Rating.ToString() ) );
-
-				string answer = string.Format( "{0:D2}h:{1:D2}m:{2:D2}s:{3:D3}ms",
-								t.Hours,
-								t.Minutes,
-								t.Seconds,
-								t.Milliseconds );
-
-				BestLabel.Text = "Global Best: " + answer;
-			}
-			else
-			{
-				BestLabel.Text = "No best global score yet.";
-			}
-
-			results = await GameServices.Leaderboard.Query( ident: Global.GameIdent, bucket: Global.MapName, playerid: Local.PlayerId );
-
-			if ( results.Entries.Count > 0 )
-			{
-				TimeSpan t = TimeSpan.FromSeconds( float.Parse( results.Entries.First().Rating.ToString() ) );
-
-				string answer = string.Format( "{0:D2}h:{1:D2}m:{2:D2}s:{3:D3}ms",
-								t.Hours,
-								t.Minutes,
-								t.Seconds,
-								t.Milliseconds );
-
-				BestLabel.Text += "\nPersonal Best: " + answer;
-			}
-			else
-			{
-				BestLabel.Text += "\nNo personal best score yet.";
-			}*/
 		}
+
+		public void ClearBoard()
+		{
+			foreach ( var client in Rows.Keys )
+			{
+				if ( Rows.TryGetValue( client, out var row ) )
+				{
+					row?.Delete();
+					Rows.Remove( client );
+				}
+			}
+
+			WaitingForScores();
+		}
+
+		int VRPlayerCount = 0;
 
 		public override void Tick()
 		{
@@ -112,15 +107,17 @@ namespace rh
 				Rotation = followEnt.Rotation;
 			}
 
-			/*foreach ( var client in Rows.Keys.Except( Client.All ) )
+			if(NumberToDisplay == 0 && VRPlayerCount != (Game.Current as RevolverHysteriaGame).VRPlayers.Count && VRPlayerCount != 1)
 			{
-				if ( Rows.TryGetValue( client, out var row ) )
-				{
-					row?.Delete();
-					Rows.Remove( client );
-				}
-			}*/
+				VRPlayerCount = (Game.Current as RevolverHysteriaGame).VRPlayers.Count;
+				ClearBoard();
+			}
 
+			if(VRPlayerCount == 0 )
+			{
+				VRPlayerCount = 1;
+				ClearBoard();
+			}
 		}
 
 		protected virtual RHScoreboardEntry AddClient( LeaderboardResult.Entry entry, int ranking )

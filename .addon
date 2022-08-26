@@ -9,7 +9,8 @@
   "ResourcePaths": [
     "/resources/*",
     "/ui/*",
-    "/fonts/*"
+    "/fonts/*",
+    "fonts/*"
   ],
   "HasCode": true,
   "CodePath": "/code/",
@@ -18,11 +19,10 @@
     "MaxPlayers": 8,
     "MinPlayers": 1,
     "GameNetworkType": "Multiplayer",
-    "MapSelect": "Unrestricted",
+    "MapSelect": "Official",
     "MapList": [
-      "shadb.rh_facility",
-      "baks.office",
-      "facepunch.construct"
+      "shadb.rh_elevator",
+      "shadb.rh_facility"
     ],
     "RankType": "Best",
     "PerMapRanking": true,

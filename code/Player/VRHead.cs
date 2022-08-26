@@ -27,6 +27,7 @@ namespace rh
 			base.Spawn();
 			Capsule cap = new Capsule( Position, Position - Rotation.Up * 50f, 12.5f );
 			SetupPhysicsFromCapsule( PhysicsMotionType.Keyframed, cap ).SetSurface( "flesh" );
+
 			Tags.Add( "player" );
 			Transform = Input.VR.Head;
 			HeadModel = new AnimatedEntity( "models/player/vrhead.vmdl" );

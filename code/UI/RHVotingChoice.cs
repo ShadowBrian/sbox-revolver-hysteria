@@ -55,7 +55,8 @@ namespace rh
 	{
 		White,
 		Positive,
-		Negative
+		Negative,
+		Headshot
 	}
 
 	public partial class WorldLabel : WorldPanel
@@ -70,10 +71,23 @@ namespace rh
 
 		int bounces = 0;
 
+		bool LongText;
+
 		public WorldLabel()
 		{
 			StyleSheet.Load( "UI/WristUI.scss" );
 			label = Add.Label( "", "Title2" );
+		}
+
+		public WorldLabel( bool Tutorial )
+		{
+			StyleSheet.Load( "UI/WristUI.scss" );
+			if ( Tutorial )
+			{
+				label = Add.Label( "", "Tutorial" );
+				SetScale = 0.1f;
+			}
+
 		}
 
 		public WorldLabel( string text, Transform trans )
@@ -93,9 +107,16 @@ namespace rh
 					break;
 				case TextType.Positive:
 					label.SetClass( "positive", true );
+					DeleteAsync( 10f );
 					break;
 				case TextType.Negative:
 					label.SetClass( "negative", true );
+					DeleteAsync( 10f );
+					break;
+				case TextType.Headshot:
+					label.SetClass( "headshot", true );
+					DeleteAsync( 2f );
+					LongText = true;
 					break;
 				default:
 					break;
@@ -105,7 +126,7 @@ namespace rh
 			UseGravity = gravity;
 			SetScale = scale;
 
-			DeleteAsync( 5f );
+
 		}
 
 		public async Task DeleteAsync( float fTime )
@@ -116,7 +137,14 @@ namespace rh
 
 		public override void Tick()
 		{
-			PanelBounds = new Rect( -500f, -250f, 1000f, 500f );
+			if ( !LongText )
+			{
+				PanelBounds = new Rect( -500f, -250f, 1000f, 500f );
+			}
+			else
+			{
+				PanelBounds = new Rect( -500f, -250f, 1500f, 500f );
+			}
 			Scale = SetScale;
 
 			if ( UseGravity )

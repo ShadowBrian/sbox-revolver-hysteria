@@ -22,6 +22,10 @@ namespace rh
 
 		bool stepReachedLastFrame;
 
+		bool PlayedTutorial;
+
+		WorldLabel TutorialLabel;
+
 		[Net, Predicted] public bool OpenCylinder { get; set; }
 
 		public override void OnAnimEventGeneric( string name, int intData, float floatData, Vector3 vectorData, string stringData )
@@ -42,6 +46,7 @@ namespace rh
 			}
 		}
 
+		Vector3 lastforwardvel;
 		public override void UpdateGun()
 		{
 			if ( !EnableDrawing )
@@ -69,10 +74,9 @@ namespace rh
 			Position = vrhand.Transform.Position - vrhand.Transform.Rotation.Forward * 5f + Rotation.Backward * BackRecoil + Rotation.Up * UpRecoil;
 
 			if ( IsClientOnly )
-			{ 
+			{
 				Delete();
 			}
-
 
 			TiltRecoil = MathX.Lerp( TiltRecoil, 0f, 0.5f );
 			BackRecoil = MathX.Lerp( BackRecoil, 0f, 0.4f );
@@ -80,7 +84,11 @@ namespace rh
 
 			Opening = vrhand.ButtonB.WasPressed || vrhand.JoystickPress.WasPressed;
 
-			Closing = vrhand.Velocity.z > 50f;
+			float tipspeed = (Rotation.Forward * 10f).z - lastforwardvel.z;
+
+			Closing = vrhand.Velocity.z > 60f || (tipspeed > 0.5f);
+
+			lastforwardvel = (Rotation.Forward * 10f).z;
 
 			if ( Opening && !OpenCylinder )
 			{
@@ -136,8 +144,46 @@ namespace rh
 				}
 			}
 
+			if ( AmmoLeft <= 0 && IsClient )
+			{
+				if ( TutorialLabel == null )
+				{
+					TutorialLabel = new WorldLabel( true );
+					TutorialLabel.Position = vrhand.Transform.Position - Rotation.Up * 7f;
+					TutorialLabel.Rotation = vrhand.Transform.Rotation * new Angles( -45, 180, 0 ).ToRotation();
+					TutorialLabel.label.Text = "B button\nOpen gun";
+				}
+			}
+
+			if ( TutorialLabel != null )
+			{
+				TutorialLabel.Position = vrhand.Transform.Position - Rotation.Up * 7f;
+				TutorialLabel.Rotation = vrhand.Transform.Rotation * new Angles( -45, 180, 0 ).ToRotation();
+				if ( !OpenCylinder && PlayedTutorial )
+				{
+					TutorialLabel.label.Text = "";
+				}
+			}
+
 			if ( OpenCylinder )
 			{
+
+				if ( !PlayedTutorial )
+				{
+					if ( TutorialLabel != null )
+					{
+						if ( AmmoLeft < 6 )
+						{
+							TutorialLabel.label.Text = "Rotate joystick\nReload";
+						}
+						else
+						{
+							TutorialLabel.label.Text = "Flick up\nClose gun";
+							PlayedTutorial = true;
+						}
+					}
+				}
+
 				float x = vrhand.Joystick.Value.x;
 				float y = vrhand.Joystick.Value.y;
 

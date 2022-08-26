@@ -20,26 +20,64 @@ namespace rh
 
 		[Event.Tick.Server]
 		public void Tick()
-		{ 
+		{
 			system?.SetPosition( 0, Position );
 			system?.SetPosition( 1, Position + Rotation.Forward * 20f );
 
 			Position += Rotation.Forward * Time.Delta * 250f;
 
-			TraceResult result = Trace.Ray( Position, Position + Rotation.Forward * 10f ).Ignore(Owner).Run();//.WithoutTags("npc")
-
-			if ( result.Hit )
+			if ( Owner.IsValid() )
 			{
-				result.Surface.DoBulletImpact( result );
 
-				var damageInfo = DamageInfo.FromBullet( result.EndPosition, Rotation.Forward * 100, 10f )
-						.UsingTraceResult( result )
-						.WithAttacker( Owner )
-						.WithWeapon( this );
+				TraceResult result = Trace.Ray( Position, Position + Rotation.Forward * 10f ).Ignore( Owner ).Run();
 
-				result.Entity.TakeDamage( damageInfo );
+				if ( result.StartedSolid )
+				{
+					Delete();
+				}
 
-				Delete();
+				if ( result.Hit )
+				{
+					if ( result.Entity is VRHead head )
+					{
+						result.Surface.DoBulletImpact( result );
+
+						var damageInfo = DamageInfo.FromBullet( result.EndPosition, Rotation.Forward * 100, 10f )
+								.UsingTraceResult( result )
+								.WithAttacker( Owner )
+								.WithWeapon( this );
+
+						result.Entity.TakeDamage( damageInfo );
+					}
+
+					Delete();
+				}
+			}
+			else
+			{
+				TraceResult result = Trace.Ray( Position, Position + Rotation.Forward * 10f ).Run();
+
+				if ( result.StartedSolid )
+				{
+					Delete();
+				}
+
+				if ( result.Hit )
+				{
+					if ( result.Entity is VRHead head )
+					{
+						result.Surface.DoBulletImpact( result );
+
+						var damageInfo = DamageInfo.FromBullet( result.EndPosition, Rotation.Forward * 100, 10f )
+								.UsingTraceResult( result )
+								.WithAttacker( Owner )
+								.WithWeapon( this );
+
+						result.Entity.TakeDamage( damageInfo );
+					}
+
+					Delete();
+				}
 			}
 		}
 	}

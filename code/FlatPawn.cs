@@ -69,7 +69,7 @@ partial class FlatPawn : AnimatedEntity
 		// apply it to our position using MoveHelper, which handles collision
 		// detection and sliding across surfaces for us
 		MoveHelper helper = new MoveHelper( Position, Velocity );
-		helper.Trace = helper.Trace.Size( 16 );
+		//helper.Trace = helper.Trace.Size( 16 );
 		if ( helper.TryMove( Time.Delta ) > 0 )
 		{
 			Position = helper.Position;
@@ -77,7 +77,7 @@ partial class FlatPawn : AnimatedEntity
 
 		if ( Input.Pressed( InputButton.PrimaryAttack ) && (Game.Current as RevolverHysteriaGame).VRPlayers.Count == 0 && platform.IsValid() && platform.GameHasStarted )
 		{
-			ShootBullet( 0.01f, 100f, 500f, 1f );
+			ShootBullet( 0.01f, 10f, 500f, 1f );
 			PlaySound( "revolver_fire" );
 		}
 

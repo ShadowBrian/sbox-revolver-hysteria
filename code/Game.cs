@@ -72,7 +72,6 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 		// Create a pawn for this client to play with
 		if ( client.IsUsingVr )
 		{
-
 			var VRRig = new VRPlayer();
 			VRRig.Owner = Owner;
 			VRRig.Predictable = true;
@@ -223,12 +222,21 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 		if ( (deadplayers == VRPlayers.Count && IsServer && ((platform.GameHasStarted && VRPlayers.Count > 0)))
 			|| (platform.pathent.IsValid() && (platform.currentnode == platform.pathent.PathNodes.Count - 1 && !(platform.pathent.PathNodes[platform.currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).AlternativePathEnabled) && IsServer)
 			|| (platform.simplepathent.IsValid() && (platform.currentnode == platform.simplepathent.PathNodes.Count - 1) && IsServer)
-			&& !EndTriggered )
+			&& !EndTriggered
+			&& !board.IsValid() )
 		{
 			TimeSinceEnded = 0f;
+
+			int totalscore = 0;
+
 			foreach ( var vrplayer in VRPlayers )
 			{
-				GameServices.SubmitScore( vrplayer.Client.PlayerId, vrplayer.Client.GetInt( "score" ) );
+				totalscore += vrplayer.Client.GetInt( "score" );
+			}
+
+			foreach ( var vrplayer in VRPlayers )
+			{
+				GameServices.UpdateLeaderboard( vrplayer.Client.PlayerId, totalscore, Global.MapName + "_" + VRPlayers.Count + "players" );
 				if ( vrplayer.HeadEnt.HitPoints <= 0 )
 				{
 					vrplayer.RevivePlayer( vrplayer.Name );
@@ -253,7 +261,7 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 			EndTriggered = true;
 		}
 
-		if ( EndTriggered && TimeSinceEnded > 30f && IsServer )
+		if ( EndTriggered && TimeSinceEnded > 20f && IsServer )
 		{
 			Global.ChangeLevel( board.ReturnMostVotedMap() );
 		}

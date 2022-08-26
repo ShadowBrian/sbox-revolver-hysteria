@@ -142,13 +142,30 @@ namespace rh
 		// TODO: Forward direction for the platform
 
 		/// <summary>
-		/// When passing this node, the moving entity will have its speed set to this value. 0 or less mean do not change.
+		/// When passing this node, the moving entity will have its speed multiplied additively to this value. 0 or less mean do not change. It's basically Speed *= (Value + 1)
 		/// </summary>
 		[Property]
 		public float Speed { get; set; } = 0;
 
+		/// <summary>
+		/// Time to wait before moving on to the next node, this applies to the end of the node not this node.
+		/// </summary>
 		[Property]
 		public float TimeToWait { get; set; } = 30;
+
+		/// <summary>
+		/// Wait until the platform receives a NodeContinueInput input?
+		/// </summary>
+		[Property]
+		public bool WaitUntilInput { get; set; }
+
+		/// <summary>
+		/// How many times should the platform receive a NodeContinueInput input before moving on? 
+		/// Think: each enemy spawner associated to a node fires a "LastEnemySpawned" output into the platform.
+		/// Could also make a bunch of breakable props shaped like a blockade that each fire the NodeContinueInput when broken.
+		/// </summary>
+		[Property]
+		public int InputReceiveCount { get; set; } = 1;
 
 		/// <summary>
 		/// Whether the alternative path is enabled or not.
@@ -172,6 +189,11 @@ namespace rh
 		/// Fired when an entity passes this node, depending on the entity implementation.
 		/// </summary>
 		public Output OnPassed { get; set; }
+
+		/// <summary>
+		/// Fired when an entity arrives at this node.
+		/// </summary>
+		public Output OnArrived { get; set; }
 
 		/// <summary>
 		/// Enables the alternative path.

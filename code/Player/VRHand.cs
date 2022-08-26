@@ -133,7 +133,7 @@ namespace rh
 
 			Gun.UpdateGun();
 
-			bool ShowGun = !(Owner as VRPlayer).cage.IsValid();
+			bool ShowGun = (Owner as VRPlayer).HeadEnt.HitPoints > 0;
 
 			if ( hand == HandSide.Left && Coin.IsValid() )
 			{
@@ -141,7 +141,7 @@ namespace rh
 				Coin.EnableDrawing = !PutCoin;
 				SetAnimParameter( "handpose", (int)((Gun.EnableDrawing || Coin.EnableDrawing) ? HandPose.Revolver : HandPose.Empty) );
 			}
-			else if ( Coin.IsValid() )
+			else
 			{
 				Gun.EnableDrawing = ShowGun;
 				SetAnimParameter( "handpose", (int)(Gun.EnableDrawing ? HandPose.Revolver : HandPose.Empty) );

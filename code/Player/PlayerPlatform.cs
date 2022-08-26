@@ -24,14 +24,28 @@ namespace rh
 			SetModel( modelName );
 		}
 
+		/// <summary>
+		/// Fired when the game starts.
+		/// </summary>
+		[Property( Name = "LockRotation" )]
+		public bool LockRotation { get; set; }
 
 		[Property( Name = "Path to take" )]
 		public EntityTarget PathEntity { get; set; }
 
+		/// <summary>
+		/// Fired when the game starts.
+		/// </summary>
 		public Output OnGameStart { get; set; }
 
+		/// <summary>
+		/// Fired when the game ends without the players dying.
+		/// </summary>
 		public Output OnGameEndWin { get; set; }
 
+		/// <summary>
+		/// Fired when the game ends with the players dying.
+		/// </summary>
 		public Output OnGameEndDied { get; set; }
 
 		[Net] public RevolverHysteriaMovementPathEntity pathent { get; set; }
@@ -143,6 +157,35 @@ namespace rh
 
 		}
 
+		bool WaitingForInput;
+
+		int InputsReceived = 0;
+
+		/// <summary>
+		/// Increases inputs received and compares it with the current node's InputReceiveCount. Continues if it's greater than.
+		/// </summary>
+		[Input]
+		public void NodeContinueInput()
+		{
+			InputsReceived++;
+			if ( InputsReceived >= (pathent.PathNodes[currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).InputReceiveCount )
+			{
+				WaitingForInput = false;
+				InputsReceived = 0;
+			}
+		}
+
+		/// <summary>
+		/// Set a parameter to a value
+		/// </summary>
+		[Input]
+		public void FireAnimationTrigger( string parameter )
+		{
+			Log.Trace( "Fired animation: " + parameter );
+			bool value = parameter.Contains( "true" ) ? true : false;
+			SetAnimParameter( parameter.Split( ',' )[0], value );
+		}
+
 		public float GetNodeLength( int node )
 		{
 			if ( pathent != null )
@@ -168,6 +211,8 @@ namespace rh
 		{
 
 		}
+
+		bool FiredArrive;
 
 		[Event.Tick.Server]
 		public void ServerTick()
@@ -203,7 +248,10 @@ namespace rh
 					Vector3 newpos = pathent.GetPointBetweenNodes( pathent.PathNodes[0], pathent.PathNodes[(0 + 1) % pathent.PathNodes.Count], 0f );
 
 					Vector3 lookpos = pathent.GetPointBetweenNodes( pathent.PathNodes[0], pathent.PathNodes[(0 + 1) % pathent.PathNodes.Count], 0.1f );
-					Rotation = Rotation.LookAt( lookpos - newpos, Vector3.Up );
+					if ( !LockRotation )
+					{
+						Rotation = Rotation.LookAt( lookpos - newpos, Vector3.Up );
+					}
 
 					Position = Vector3.Lerp( Position, newpos, 0.5f );
 
@@ -216,7 +264,10 @@ namespace rh
 						Vector3 newpos = simplepathent.GetPointBetweenNodes( simplepathent.PathNodes[0], simplepathent.PathNodes[(0 + 1) % simplepathent.PathNodes.Count], 0f );
 
 						Vector3 lookpos = simplepathent.GetPointBetweenNodes( simplepathent.PathNodes[0], simplepathent.PathNodes[(0 + 1) % simplepathent.PathNodes.Count], 0.1f );
-						Rotation = Rotation.LookAt( lookpos - newpos, Vector3.Up );
+						if ( !LockRotation )
+						{
+							Rotation = Rotation.LookAt( (lookpos - newpos).WithZ( 0 ), Vector3.Up );
+						}
 
 						Position = Vector3.Lerp( Position, newpos, 0.5f );
 
@@ -229,6 +280,12 @@ namespace rh
 					if ( pathent != null )
 					{
 						(pathent.PathNodes[currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).OnPassed.Fire( this );
+
+						if ( (pathent.PathNodes[currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).WaitUntilInput )
+						{
+							WaitingForInput = true;
+						}
+
 						OnGameStart.Fire( this );
 					}
 				}
@@ -263,9 +320,25 @@ namespace rh
 					}
 				}
 
-				float NodeTime = 1f / ((Time.Delta / GetNodeLength( currentnode )) * 50f * ((pathent.PathNodes[currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).Speed + 1f));
+				RevolverHysteriaMovementPathNodeEntity nodeEnt = (pathent.PathNodes[currentnode].Entity as RevolverHysteriaMovementPathNodeEntity);
 
-				if ( movementProgress > 1f && TimeSinceEndNode > (pathent.PathNodes[currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).TimeToWait + (NodeTime / 120f) )
+				float NodeTime = 1f / ((Time.Delta / GetNodeLength( currentnode )) * 50f * (nodeEnt.Speed + 1f));
+
+				if ( nodeEnt.WaitUntilInput )
+				{
+					NodeTime *= 1000f;
+				}
+
+				if ( movementProgress >= 0.9f && !FiredArrive )
+				{
+					if ( currentnode + 1 < pathent.PathNodes.Count - 1 )
+					{
+						(pathent.PathNodes[currentnode + 1].Entity as RevolverHysteriaMovementPathNodeEntity).OnArrived.Fire( this, 0.1f );
+					}
+					FiredArrive = true;
+				}
+
+				if ( movementProgress > 1f && (TimeSinceEndNode > nodeEnt.TimeToWait + (NodeTime / 120f) || (nodeEnt.WaitUntilInput && !WaitingForInput)) )
 				{
 					TimeSinceEndNode = 0f;
 
@@ -277,12 +350,22 @@ namespace rh
 
 					(pathent.PathNodes[currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).OnPassed.Fire( this );
 
+					if ( (pathent.PathNodes[currentnode].Entity as RevolverHysteriaMovementPathNodeEntity).WaitUntilInput )
+					{
+						WaitingForInput = true;
+					}
+
 					movementProgress = 0f;
+
+					FiredArrive = false;
 				}
 				if ( movementProgress < 1f && currentnode != pathent.PathNodes.Count - 1 )
 				{
 					Vector3 newpos = pathent.GetPointBetweenNodes( pathent.PathNodes[currentnode], pathent.PathNodes[(currentnode + 1) % pathent.PathNodes.Count], movementProgress );
-					Rotation = Rotation.Slerp( Rotation, Rotation.LookAt( (newpos - Position).WithZ( 0 ), Vector3.Up ), 0.5f );
+					if ( !LockRotation )
+					{
+						Rotation = Rotation.Slerp( Rotation, Rotation.LookAt( (newpos - Position).WithZ( 0 ), Vector3.Up ), 0.5f );
+					}
 					Position = Vector3.Lerp( Position, newpos, 0.5f );
 				}
 
@@ -321,7 +404,10 @@ namespace rh
 				if ( movementProgress < 1f && currentnode != simplepathent.PathNodes.Count - 1 )
 				{
 					Vector3 newpos = simplepathent.GetPointBetweenNodes( simplepathent.PathNodes[currentnode], simplepathent.PathNodes[(currentnode + 1) % simplepathent.PathNodes.Count], movementProgress );
-					Rotation = Rotation.Slerp( Rotation, Rotation.LookAt( (newpos - Position).WithZ( 0 ), Vector3.Up ), 0.25f );
+					if ( !LockRotation )
+					{
+						Rotation = Rotation.Slerp( Rotation, Rotation.LookAt( (newpos - Position).WithZ( 0 ), Vector3.Up ), 0.25f );
+					}
 					Position = Vector3.Lerp( Position, newpos, 0.5f );
 				}
 			}
