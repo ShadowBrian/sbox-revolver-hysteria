@@ -11,7 +11,7 @@ namespace rh
 	public partial class RHScoreboardEntry : Panel
 	{
 
-		public LeaderboardResult.Entry assignedResult;
+		public LeaderboardEntry assignedResult;
 
 		public int Ranking = 0;
 
@@ -50,15 +50,15 @@ namespace rh
 				return;
 			}*/
 
-			PlayerName.Text = Ranking + "." + assignedResult.DisplayName.ToLower().Truncate(18);
-			Kills.Text = assignedResult.Rating.ToString();// .GetInt( "score" ).ToString();
+			PlayerName.Text = Ranking + "." + assignedResult.Name.ToLower().Truncate(18);
+			Kills.Text = assignedResult.Score + "";// .GetInt( "score" ).ToString();
 			SetClass( "me", assignedResult.PlayerId == Local.Client.PlayerId );
 
 			//if(assignedClient == Local.Client)
 			//Log.Trace( ScoreManager.KillPointLevel + (ScoreManager.Scores[assignedClient] + "is less than" + ScoreManager.KillPointLevel).ToString() );
 		}
 
-		public virtual void UpdateFrom( LeaderboardResult.Entry client )
+		public virtual void UpdateFrom( LeaderboardEntry client )
 		{
 			assignedResult = client;
 			UpdateData();

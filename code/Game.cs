@@ -188,6 +188,33 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 		base.OnVoicePlayed( cl );
 	}
 
+	public async void DoScoreSubmit(Client cl, int score)
+	{
+		Leaderboard? board = await Leaderboard.FindOrCreate( Global.MapName + "_" + VRPlayers.Count + "players", false );
+
+		if(board.HasValue)
+		{
+			Log.Trace( "found leaderboard, submitting!" );
+			LeaderboardUpdate? result = await board.Value.Submit( cl, score );
+
+			if ( result.HasValue )
+			{
+				if ( result.Value.RankChange > 0 )
+				{
+					Log.Trace( "Rank changed by " + result.Value.RankChange + " spot(s)." );
+				}
+				else
+				{
+					Log.Trace( "Your rank didn't change :(" );
+				}
+			}
+			else
+			{
+				Log.Trace( "Some kind of error occured trying to submit your score!" );
+			}
+		}
+	}
+
 	public override void Simulate( Client cl )
 	{
 		base.Simulate( cl );
@@ -236,7 +263,8 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 
 			foreach ( var vrplayer in VRPlayers )
 			{
-				GameServices.UpdateLeaderboard( vrplayer.Client.PlayerId, totalscore, Global.MapName + "_" + VRPlayers.Count + "players" );
+				DoScoreSubmit( vrplayer.Client, totalscore );
+				//GameServices.UpdateLeaderboard( vrplayer.Client.PlayerId, totalscore, Global.MapName + "_" + VRPlayers.Count + "players" );
 				if ( vrplayer.HeadEnt.HitPoints <= 0 )
 				{
 					vrplayer.RevivePlayer( vrplayer.Name );

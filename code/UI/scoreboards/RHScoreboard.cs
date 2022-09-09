@@ -12,7 +12,7 @@ namespace rh
 {
 	public partial class RHScoreboard : WorldPanel
 	{
-		Dictionary<LeaderboardResult.Entry, RHScoreboardEntry> Rows = new();
+		Dictionary<LeaderboardEntry, RHScoreboardEntry> Rows = new();
 
 		public int NumberToDisplay = 0;
 
@@ -50,9 +50,9 @@ namespace rh
 
 		bool GotScores;
 
-		public async Task WaitingForScores()
+		public async void WaitingForScores()
 		{
-			if ( NumberToDisplay != 0 )
+			/*if ( NumberToDisplay != 0 )
 			{
 				NameLabel.Text = NumberToDisplay + " players";
 				results = await GameServices.Leaderboard.Query( ident: Global.GameIdent, bucket: Global.MapName + "_" + NumberToDisplay + "players" );
@@ -62,22 +62,27 @@ namespace rh
 				NameLabel.Text = VRPlayerCount + " players";
 
 				results = await GameServices.Leaderboard.Query( ident: Global.GameIdent, bucket: Global.MapName + "_" + VRPlayerCount + "players" );
+			}*/
+
+			NameLabel.Text = (NumberToDisplay != 0 ? NumberToDisplay : VRPlayerCount) + " players";
+
+			Leaderboard? board = await Leaderboard.Find( Global.MapName + "_" + (NumberToDisplay != 0 ? NumberToDisplay : VRPlayerCount) + "players" );
+
+			if ( board.HasValue )
+			{
+				LeaderboardEntry[]? entries = await board.Value.GetGlobalScores( 25 );
+
+				foreach ( LeaderboardEntry boardentry in entries )
+				{
+
+					var entry = AddClient( boardentry, boardentry.GlobalRank );
+					Rows[boardentry] = entry;
+					Rows[boardentry].Ranking = boardentry.GlobalRank;
+					//Log.Trace( ranking + "." + client.DisplayName + " " + client.Rating );
+				}
 			}
 
 			GotScores = true;
-
-			//Log.Trace( "Got scores!" );
-
-			int ranking = 0;
-
-			foreach ( var client in results.Entries )
-			{
-				ranking++;
-				var entry = AddClient( client, ranking );
-				Rows[client] = entry;
-				Rows[client].Ranking = ranking;
-				//Log.Trace( ranking + "." + client.DisplayName + " " + client.Rating );
-			}
 
 		}
 
@@ -107,20 +112,20 @@ namespace rh
 				Rotation = followEnt.Rotation;
 			}
 
-			if(NumberToDisplay == 0 && VRPlayerCount != (Game.Current as RevolverHysteriaGame).VRPlayers.Count && VRPlayerCount != 1)
+			if ( NumberToDisplay == 0 && VRPlayerCount != (Game.Current as RevolverHysteriaGame).VRPlayers.Count && VRPlayerCount != 1 )
 			{
 				VRPlayerCount = (Game.Current as RevolverHysteriaGame).VRPlayers.Count;
 				ClearBoard();
 			}
 
-			if(VRPlayerCount == 0 )
+			if ( VRPlayerCount == 0 )
 			{
 				VRPlayerCount = 1;
 				ClearBoard();
 			}
 		}
 
-		protected virtual RHScoreboardEntry AddClient( LeaderboardResult.Entry entry, int ranking )
+		protected virtual RHScoreboardEntry AddClient( LeaderboardEntry entry, int ranking )
 		{
 			var p = Canvas.AddChild<RHScoreboardEntry>();
 			p.Ranking = ranking;
