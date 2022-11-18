@@ -11,7 +11,7 @@ namespace rh
 	{
 		[Net, Predicted] public VRHand HandEnt { get; set; }
 
-		public string ModelPath => "models/revolver/revolver.vmdl";
+		public virtual string ModelPath => "models/revolver/revolver.vmdl";
 
 		[Net] public int AmmoLeft { get; set; } = 6;
 		public float TiltRecoil, UpRecoil, BackRecoil;

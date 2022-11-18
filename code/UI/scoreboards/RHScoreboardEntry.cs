@@ -10,13 +10,14 @@ namespace rh
 {
 	public partial class RHScoreboardEntry : Panel
 	{
-
 		public LeaderboardEntry assignedResult;
 
 		public int Ranking = 0;
 
 		public Label PlayerName;
 		public Label Kills;
+
+		public bool FriendEntry;
 
 		public RHScoreboardEntry()
 		{
@@ -53,6 +54,8 @@ namespace rh
 			PlayerName.Text = Ranking + "." + assignedResult.Name.ToLower().Truncate(18);
 			Kills.Text = assignedResult.Score + "";// .GetInt( "score" ).ToString();
 			SetClass( "me", assignedResult.PlayerId == Local.Client.PlayerId );
+
+			SetClass( "friend", FriendEntry );
 
 			//if(assignedClient == Local.Client)
 			//Log.Trace( ScoreManager.KillPointLevel + (ScoreManager.Scores[assignedClient] + "is less than" + ScoreManager.KillPointLevel).ToString() );

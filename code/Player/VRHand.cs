@@ -32,6 +32,9 @@ namespace rh
 
 		[Net] public bool Initialized { get; set; }
 
+		[ConVar.Replicated( "shotguns" )]
+		public static bool UseShotguns { get; set; }
+
 		[Net, Predicted] public WeaponBaseClass Gun { get; set; }
 
 		[Net] public ModelEntity Wristwatch { get; set; }
@@ -73,8 +76,58 @@ namespace rh
 
 		[Net] bool dressedHand { get; set; }
 
+		public void ReplaceGun()
+		{
+			if ( Gun is Revolver && Gun is not Shotgun )
+			{
+				Gun.Delete();
+				Gun = new Shotgun();
+				Gun.Owner = Owner;
+				Gun.HandEnt = this;
+			}
+
+			else if ( Gun is Shotgun )
+			{
+				Gun.Delete();
+				Gun = new Revolver();
+				Gun.Owner = Owner;
+				Gun.HandEnt = this;
+			}
+		}
+
 		public void HandleHand()
 		{
+			/*if ( UseShotguns && Gun is not Shotgun )
+			{
+				ReplaceGun();
+			} else if ( !UseShotguns && Gun is Shotgun )
+			{
+				ReplaceGun();
+			}*/
+
+			if(IsServer && Initialized )
+			{
+				switch ( hand )
+				{
+					case HandSide.None:
+						break;
+					case HandSide.Left:
+						if ( Input.VR.LeftHand.JoystickPress.WasPressed )
+						{
+							ReplaceGun();
+						}
+						break;
+					case HandSide.Right:
+						if ( Input.VR.RightHand.JoystickPress.WasPressed )
+						{
+							ReplaceGun();
+						}
+						break;
+					default:
+						break;
+				}
+			}
+
 			if ( hand == HandSide.None )
 			{
 				return;
@@ -84,7 +137,14 @@ namespace rh
 				switch ( hand )
 				{
 					case HandSide.Left:
-						Gun = new Revolver();
+						if ( !UseShotguns )
+						{
+							Gun = new Revolver();
+						}
+						else
+						{
+							Gun = new Shotgun();
+						}
 						Gun.Owner = Owner;
 						Gun.HandEnt = this;
 
@@ -104,7 +164,14 @@ namespace rh
 						Wristwatch.LocalRotation *= new Angles( 0, 90, 0 ).ToRotation();
 						break;
 					case HandSide.Right:
-						Gun = new Revolver();
+						if ( !UseShotguns )
+						{
+							Gun = new Revolver();
+						}
+						else
+						{
+							Gun = new Shotgun();
+						}
 						Gun.Owner = Owner;
 						Gun.HandEnt = this;
 

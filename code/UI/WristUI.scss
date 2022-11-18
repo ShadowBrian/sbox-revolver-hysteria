@@ -51,9 +51,10 @@ HealthMeter {
     }
 
     &.headshot {
-        animation-name: rainbow;
+        color: lawngreen;
+        /*animation-name: rainbow;
         animation-duration: 2s;
-        animation-timing-function: linear;
+        animation-timing-function: linear;*/
     }
 }
 

@@ -3,6 +3,7 @@
   "Type": "game",
   "Org": "shadb",
   "Ident": "rh",
+  "Tags": "",
   "Schema": 1,
   "HasAssets": true,
   "AssetsPath": "",
@@ -19,7 +20,7 @@
     "MaxPlayers": 8,
     "MinPlayers": 1,
     "GameNetworkType": "Multiplayer",
-    "MapSelect": "Official",
+    "MapSelect": "Tagged",
     "MapList": [
       "shadb.rh_elevator",
       "shadb.rh_facility"
@@ -77,6 +78,22 @@
     },
     "ControlModes": {
       "VR": true
-    }
+    },
+    "DefaultLeaderboards": [
+      "shadb.rh_elevator_1players",
+      "shadb.rh_facility_1players"
+    ],
+    "ParentPackage": "",
+    "PackageSettings": [
+      {
+        "DisplayType": "Boolean",
+        "Choices": [],
+        "ConVarName": "shotguns",
+        "DisplayName": "Shotguns",
+        "DefaultValue": "false",
+        "Description": "Enable shotguns?",
+        "Group": ""
+      }
+    ]
   }
 }

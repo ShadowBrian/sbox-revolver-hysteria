@@ -18,6 +18,15 @@ namespace rh
 			DeleteAsync( 20f );
 		}
 
+		/*[Event.Tick.Client]
+		public void ClientTick()
+		{
+			if(Vector3.DistanceBetween(Input.VR.Head.Position,Position) > 256f )
+			{
+				DebugOverlay.Sphere( Position, 1f, Color.Yellow );
+			}
+		}*/
+
 		[Event.Tick.Server]
 		public void Tick()
 		{

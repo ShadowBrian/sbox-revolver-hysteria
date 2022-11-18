@@ -38,6 +38,8 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 
 	}
 
+
+
 	[Net] ProceduralRHEnts ProcEntGen { get; set; }
 
 	public override void PostLevelLoaded()
@@ -56,6 +58,12 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 				ProcEntGen = new ProceduralRHEnts();
 			}
 		}
+	}
+
+	[ConCmd.Server("rh_swapguns")]
+	public static void SwapGun()
+	{
+		VRHand.UseShotguns = !VRHand.UseShotguns;
 	}
 
 	[Net] public List<VRPlayer> VRPlayers { get; set; }

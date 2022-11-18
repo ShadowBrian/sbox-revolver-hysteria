@@ -72,18 +72,32 @@ namespace rh
 			{
 				LeaderboardEntry[]? entries = await board.Value.GetGlobalScores( 25 );
 
-				foreach ( LeaderboardEntry boardentry in entries )
-				{
+				LeaderboardEntry[]? friendentries = await board.Value.GetFriendScores();
 
-					var entry = AddClient( boardentry, boardentry.GlobalRank );
-					Rows[boardentry] = entry;
-					Rows[boardentry].Ranking = boardentry.GlobalRank;
-					//Log.Trace( ranking + "." + client.DisplayName + " " + client.Rating );
+				List<long> friendIDs = new List<long>();
+
+				if(friendentries.Length > 0 )
+				{
+					foreach ( var friendtry in friendentries )
+					{
+						friendIDs.Add( friendtry.PlayerId );
+					}
+				}
+
+				if ( entries.Length > 0 )
+				{
+					foreach ( LeaderboardEntry boardentry in entries )
+					{
+						var entry = AddClient( boardentry, boardentry.GlobalRank );
+						Rows[boardentry] = entry;
+						Rows[boardentry].Ranking = boardentry.GlobalRank;
+						entry.FriendEntry = friendIDs.Contains( boardentry.PlayerId );
+						//Log.Trace( ranking + "." + client.DisplayName + " " + client.Rating );
+					}
 				}
 			}
 
 			GotScores = true;
-
 		}
 
 		public void ClearBoard()

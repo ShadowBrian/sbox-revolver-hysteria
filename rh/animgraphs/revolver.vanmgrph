@@ -954,7 +954,7 @@
 	}
 	m_previewModels = 
 	[
-		"models/revolver/revolver.vmdl",
+		"models/shotgun/shotgun.vmdl",
 	]
 	m_boneMergeModels = [  ]
 }

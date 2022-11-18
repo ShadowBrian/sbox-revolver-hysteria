@@ -32,23 +32,13 @@
 					{
 						_class = "MaterialGroup"
 						name = "Skin01"
-						remaps = 
-						[
-							{
-								from = "models/citizen/skin/citizen_skin.vmat"
-								to = "models/citizen/skin/citizen_skin01.vmat"
-							},
-						]
+						remaps = [  ]
 					},
 					{
 						_class = "MaterialGroup"
 						name = "Skin02"
 						remaps = 
 						[
-							{
-								from = "models/citizen/skin/citizen_skin.vmat"
-								to = "models/citizen/skin/citizen_skin02.vmat"
-							},
 							{
 								from = "models/citizen/skin/citizen_eyes_advanced.vmat"
 								to = "models/citizen/skin/citizen_eyes_advanced02.vmat"
@@ -61,10 +51,6 @@
 						remaps = 
 						[
 							{
-								from = "models/citizen/skin/citizen_skin.vmat"
-								to = "models/citizen/skin/citizen_skin03.vmat"
-							},
-							{
 								from = "models/citizen/skin/citizen_eyes_advanced.vmat"
 								to = "models/citizen/skin/citizen_eyes_advanced03.vmat"
 							},
@@ -76,10 +62,6 @@
 						remaps = 
 						[
 							{
-								from = "models/citizen/skin/citizen_skin.vmat"
-								to = "models/citizen/skin/citizen_skin04.vmat"
-							},
-							{
 								from = "models/citizen/skin/citizen_eyes_advanced.vmat"
 								to = "models/citizen/skin/citizen_eyes_advanced.vmat"
 							},
@@ -90,10 +72,6 @@
 						name = "Skin05"
 						remaps = 
 						[
-							{
-								from = "models/citizen/skin/citizen_skin.vmat"
-								to = "models/citizen/skin/citizen_skin05.vmat"
-							},
 							{
 								from = "models/citizen/skin/citizen_eyes_advanced.vmat"
 								to = "models/citizen/skin/citizen_eyes_advanced.vmat"
@@ -118,17 +96,10 @@
 						parent_bone = ""
 						import_filter = 
 						{
-							exclude_by_default = true
+							exclude_by_default = false
 							exception_list = 
 							[
-								"Citizen_LowerTeeth",
-								"Citizen_UpperTeeth",
-								"Citizen_Eyes",
-								"Citizen_UpperEyelids",
-								"Citizen_LowerEyelids",
-								"Citizen_UpperEyelidAO",
-								"Citizen_Head",
-								"Citizen_EyesAO",
+								"Citizen_EyebrowsOld",
 							]
 						}
 					},
