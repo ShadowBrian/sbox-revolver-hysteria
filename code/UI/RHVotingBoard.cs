@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Sandbox.UI;
 using Sandbox.UI.Construct;
 using Sandbox;
-using SandboxEditor;
+using Editor;
 
 namespace rh
 {

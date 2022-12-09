@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Sandbox;
-using SandboxEditor;
+using Editor;
 
 namespace rh
 {
@@ -106,7 +106,7 @@ namespace rh
 				DebugOverlay.Line( Position, Position + Vector3.Up * 100f, Color.Blue, 0f, false );
 			}
 
-			if ( ((platform.GameHasStarted && platform.currentnode == AssociatedNodeNumber) || (InputSpawnedEnemy)) && !(Game.Current as RevolverHysteriaGame).EndTriggered )
+			if ( ((platform.GameHasStarted && platform.currentnode == AssociatedNodeNumber) || (InputSpawnedEnemy)) && !(GameManager.Current as RevolverHysteriaGame).EndTriggered )
 			{
 				if ( spawndelay > 0 )
 				{
@@ -181,7 +181,7 @@ namespace rh
 				}
 			}
 
-			if ( ActiveNPC != null && (Game.Current as RevolverHysteriaGame).EndTriggered )
+			if ( ActiveNPC != null && (GameManager.Current as RevolverHysteriaGame).EndTriggered )
 			{
 				for ( int i = 0; i < ActiveNPC.Children.Count; i++ )
 				{
@@ -203,7 +203,7 @@ namespace rh
 		[Input]
 		public void SpawnEnemy()
 		{
-			if ( (Game.Current as RevolverHysteriaGame).EndTriggered )
+			if ( (GameManager.Current as RevolverHysteriaGame).EndTriggered )
 			{
 				return;
 			}

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Sandbox;
-using SandboxEditor;
+using Editor;
 
 namespace rh
 {
@@ -217,7 +217,7 @@ namespace rh
 		[Event.Tick.Server]
 		public void ServerTick()
 		{
-			if ( (Game.Current as RevolverHysteriaGame).EndTriggered )
+			if ( (GameManager.Current as RevolverHysteriaGame).EndTriggered )
 			{
 				return;
 			}
@@ -273,7 +273,7 @@ namespace rh
 
 					}
 				}
-				if ( (Game.Current as RevolverHysteriaGame).VRPlayers.Count > 0 && (PlayersReady >= (Game.Current as RevolverHysteriaGame).VRPlayers.Count || PlayersReady == 4) )
+				if ( (GameManager.Current as RevolverHysteriaGame).VRPlayers.Count > 0 && (PlayersReady >= (GameManager.Current as RevolverHysteriaGame).VRPlayers.Count || PlayersReady == 4) )
 				{
 					GameHasStarted = true;
 					TimeSinceEndNode = 0f;

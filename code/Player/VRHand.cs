@@ -105,7 +105,7 @@ namespace rh
 				ReplaceGun();
 			}*/
 
-			if(IsServer && Initialized )
+			if ( IsServer && Initialized )
 			{
 				switch ( hand )
 				{
@@ -214,7 +214,7 @@ namespace rh
 				SetAnimParameter( "handpose", (int)(Gun.EnableDrawing ? HandPose.Revolver : HandPose.Empty) );
 			}
 
-			EnableHideInFirstPerson = CurrentView.Viewer == Client;
+			//EnableHideInFirstPerson = CurrentView.Viewer == Client;
 
 			//DebugOverlay.Line( Position, Position + Vector3.Up );
 

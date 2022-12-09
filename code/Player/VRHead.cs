@@ -108,7 +108,7 @@ namespace rh
 
 		List<ModelEntity> ClothingEntities = new List<ModelEntity>();
 
-		[Event.Frame]
+		[Event.Client.Frame]
 		public void Frame()
 		{
 			if ( RedPostEnt != null )
@@ -153,7 +153,7 @@ namespace rh
 			if ( GreenPostEnt == null )
 			{
 				GreenPostEnt = new ModelEntity( "models/player/headbox.vmdl" );
-				GreenPostEnt.EnableDrawOverWorld = true;
+				//GreenPostEnt.EnableDrawOverWorld = true;
 				GreenPostEnt.Owner = Owner;
 				GreenPostEnt.Transform = Transform;
 				GreenPostEnt.SetMaterialGroup( "green" );
@@ -175,7 +175,7 @@ namespace rh
 			if ( RedPostEnt == null )
 			{
 				RedPostEnt = new ModelEntity( "models/player/headbox.vmdl" );
-				RedPostEnt.EnableDrawOverWorld = true;
+				//RedPostEnt.EnableDrawOverWorld = true;
 				RedPostEnt.Owner = Owner;
 				RedPostEnt.Transform = Transform;
 			}

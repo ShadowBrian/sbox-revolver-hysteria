@@ -2,7 +2,7 @@
 
 Layer0
 {
-	shader "complex.vfx"
+	shader "complex.shader"
 
 	//---- PBR ----
 	F_SELF_ILLUM 1
@@ -16,7 +16,7 @@ Layer0
 	//---- Color ----
 	g_flModelTintAmount "1.000"
 	g_vColorTint "[1.000000 1.000000 1.000000 0.000000]"
-	TextureColor "models/player/materials/platform_color.psd"
+	TextureColor "models/player/materials/substance/playerplatform_4_phong1_basecolor.png"
 
 	//---- Fade ----
 	g_flFadeExponent "1.000"
@@ -32,10 +32,10 @@ Layer0
 	g_flMetalness "0.500"
 
 	//---- Normal ----
-	TextureNormal "models/player/materials/platform_normal.psd"
+	TextureNormal "models/player/materials/substance/playerplatform_4_phong1_normal.png"
 
 	//---- Roughness ----
-	TextureRoughness "models/player/materials/platform_rough.psd"
+	TextureRoughness "models/player/materials/substance/playerplatform_4_phong1_roughness.png"
 
 	//---- Self Illum ----
 	g_flSelfIllumAlbedoFactor "1.000"

@@ -27,14 +27,27 @@ partial class FlatPawn : AnimatedEntity
 		platform = Entity.All.OfType<PlayerPlatform>().FirstOrDefault();
 	}
 
-	public override void PostCameraSetup( ref CameraSetup camSetup )
+	[Event.Client.PostCamera]
+	public void PostCameraSetup()
 	{
-		base.PostCameraSetup( ref camSetup );
-
-		camSetup.Viewer = this;
+		Camera.FirstPersonViewer = this;
 	}
 
 	float Speedramp = 0f, fb = 0f, lr = 0f;
+
+	[ClientInput] public Vector3 InputDirection { get; protected set; }
+	[ClientInput] public Angles ViewAngles { get; set; }
+
+	public override void BuildInput()
+	{
+		InputDirection = Input.AnalogMove;
+
+		var look = Input.AnalogLook;
+
+		var viewAngles = ViewAngles;
+		viewAngles += look;
+		ViewAngles = viewAngles.Normal;
+	}
 
 	/// <summary>
 	/// Called every tick, clientside and serverside.
@@ -48,12 +61,12 @@ partial class FlatPawn : AnimatedEntity
 			EnableDrawing = true;
 		}
 
-		Rotation = Input.Down( InputButton.Duck ) ? Rotation.Slerp( Rotation, Input.Rotation, 0.05f ) : Rotation.Slerp( Rotation, Input.Rotation, 0.75f );
+		Rotation = Input.Down( InputButton.Duck ) ? Rotation.Slerp( Rotation, ViewAngles.ToRotation(), 0.05f ) : Rotation.Slerp( Rotation, ViewAngles.ToRotation(), 0.75f );
 
-		EyeRotation = Rotation;
+		//AimRay.Forward = Rotation.Forward;
 
-		fb = MathX.Lerp( fb, Input.Forward, 0.1f );
-		lr = MathX.Lerp( lr, Input.Left, 0.1f );
+		fb = MathX.Lerp( fb, InputDirection.x, 0.1f );
+		lr = MathX.Lerp( lr, InputDirection.y, 0.1f );
 
 		// build movement from the input values
 		var movement = new Vector3( fb, lr, 0 );
@@ -75,7 +88,7 @@ partial class FlatPawn : AnimatedEntity
 			Position = helper.Position;
 		}
 
-		if ( Input.Pressed( InputButton.PrimaryAttack ) && (Game.Current as RevolverHysteriaGame).VRPlayers.Count == 0 && platform.IsValid() && platform.GameHasStarted )
+		if ( Input.Pressed( InputButton.PrimaryAttack ) && (GameManager.Current as RevolverHysteriaGame).VRPlayers.Count == 0 && platform.IsValid() && platform.GameHasStarted )
 		{
 			ShootBullet( 0.01f, 10f, 500f, 1f );
 			PlaySound( "revolver_fire" );
@@ -175,7 +188,10 @@ partial class FlatPawn : AnimatedEntity
 		base.FrameSimulate( cl );
 
 		// Update rotation every frame, to keep things smooth
-		Rotation = Input.Down( InputButton.Duck ) ? Rotation.Slerp( Rotation, Input.Rotation, 0.05f ) : Rotation.Slerp( Rotation, Input.Rotation, 0.75f );
-		EyeRotation = Rotation;
+		Rotation = Input.Down( InputButton.Duck ) ? Rotation.Slerp( Rotation, ViewAngles.ToRotation(), 0.05f ) : Rotation.Slerp( Rotation, ViewAngles.ToRotation(), 0.75f );
+		//EyeRotation = Rotation;
+
+		Camera.Position = Position;
+		Camera.Rotation = Rotation;
 	}
 }

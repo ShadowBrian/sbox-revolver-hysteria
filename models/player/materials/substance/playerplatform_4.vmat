@@ -1,0 +1,14 @@
+
+Layer0
+{
+	shader "complex.vfx"
+
+	TextureColor "models/player/materials/substance/playerplatform_4_phong1_basecolor.png"
+	TextureAmbientOcclusion "materials/default/default_ao.tga"
+	TextureNormal "models/player/materials/substance/playerplatform_4_phong1_normal.png"
+	TextureRoughness "models/player/materials/substance/playerplatform_4_phong1_roughness.png"
+	F_METALNESS_TEXTURE 1
+	F_SPECULAR 1
+	TextureMetalness "models/player/materials/substance/playerplatform_4_phong1_metallic.png"
+
+}

@@ -40,7 +40,7 @@
 						[
 							{
 								from = "phong1.vmat"
-								to = "models/player/materials/cage.vmat"
+								to = "models/player/materials/substance/respawncage.vmat"
 							},
 							{
 								from = "phong2.vmat"
@@ -106,8 +106,8 @@
 							exclude_by_default = true
 							exception_list = 
 							[
-								"polySurface68",
 								"polySurface72",
+								"polySurface68",
 							]
 						}
 					},

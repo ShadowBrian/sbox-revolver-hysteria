@@ -95,17 +95,6 @@ namespace rh
 			}
 		}
 
-		[ConCmd.Client( "rh_reviveplayer" )]
-		public void RevivePlayer( string name )
-		{
-			(FindByName( name ) as VRPlayer).HeadEnt.HitPoints = 5;
-			if ( (FindByName( name ) as VRPlayer).cage.IsValid() )
-			{
-				(FindByName( name ) as VRPlayer).cage.UsedCage = true;
-				(FindByName( name ) as VRPlayer).cage = null;
-			}
-		}
-
 		public override void FrameSimulate( Client cl )
 		{
 			base.FrameSimulate( cl );
@@ -123,6 +112,12 @@ namespace rh
 					Transform = cage.Transform.WithRotation( Rotation );
 				}
 			}
+		}
+
+		public override void BuildInput()
+		{
+			base.BuildInput();
+			HandleHands();
 		}
 
 		public void HandleHands()

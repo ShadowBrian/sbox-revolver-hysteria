@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Sandbox;
-using SandboxEditor;
+using Editor;
 
 namespace rh
 {
@@ -47,7 +47,7 @@ namespace rh
 		{
 			base.TakeDamage( info );
 
-			if ( info.Attacker is VRPlayer pawn || info.Attacker is BaseEnemyClass enemy )
+			if ( (info.Attacker is VRPlayer pawn || info.Attacker is BaseEnemyClass enemy) && IsClient )
 			{
 				HitsRequired--;
 				if ( HitsRequired == 0 )
@@ -56,7 +56,7 @@ namespace rh
 					{
 						SetAnimParameter( "opencage", true );
 						SetBodyGroup( 0, 1 );
-						OccupyingPlayer.RevivePlayer( OccupyingPlayer.Name );
+						RevolverHysteriaGame.RevivePlayer( OccupyingPlayer.Name );
 						OccupyingPlayer = null;
 						UsedCage = true;
 						OnPlayerSaved.Fire( this );

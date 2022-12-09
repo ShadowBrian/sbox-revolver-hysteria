@@ -15,11 +15,22 @@
 						[
 							{
 								from = "phong1.vmat"
-								to = "models/revolver/materials/revolver.vmat"
+								to = "models/revolver/materials/substance/revolverblank.vmat"
 							},
 						]
 						use_global_default = false
 						global_default_material = ""
+					},
+					{
+						_class = "MaterialGroup"
+						name = "substance"
+						remaps = 
+						[
+							{
+								from = "models/revolver/materials/revolver.vmat"
+								to = "models/revolver/materials/substance/revolverblank.vmat"
+							},
+						]
 					},
 				]
 			},

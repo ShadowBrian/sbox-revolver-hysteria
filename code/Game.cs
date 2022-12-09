@@ -18,7 +18,7 @@ namespace rh;
 /// You can use this to create things like HUDs and declare which player class
 /// to use for spawned players.
 /// </summary>
-public partial class RevolverHysteriaGame : Sandbox.Game
+public partial class RevolverHysteriaGame : GameManager
 {
 	public static List<string> GetMaps()
 	{
@@ -60,7 +60,7 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 		}
 	}
 
-	[ConCmd.Server("rh_swapguns")]
+	[ConCmd.Server( "rh_swapguns" )]
 	public static void SwapGun()
 	{
 		VRHand.UseShotguns = !VRHand.UseShotguns;
@@ -196,11 +196,11 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 		base.OnVoicePlayed( cl );
 	}
 
-	public async void DoScoreSubmit(Client cl, int score)
+	public async void DoScoreSubmit( Client cl, int score )
 	{
 		Leaderboard? board = await Leaderboard.FindOrCreate( Global.MapName + "_" + VRPlayers.Count + "players", false );
 
-		if(board.HasValue)
+		if ( board.HasValue )
 		{
 			Log.Trace( "found leaderboard, submitting!" );
 			LeaderboardUpdate? result = await board.Value.Submit( cl, score );
@@ -220,6 +220,18 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 			{
 				Log.Trace( "Some kind of error occured trying to submit your score!" );
 			}
+		}
+	}
+
+
+	[ConCmd.Server( "rh_reviveplayer" )]
+	public static void RevivePlayer( string name )
+	{
+		(FindByName( name ) as VRPlayer).HeadEnt.HitPoints = 5;
+		if ( (FindByName( name ) as VRPlayer).cage.IsValid() )
+		{
+			(FindByName( name ) as VRPlayer).cage.UsedCage = true;
+			(FindByName( name ) as VRPlayer).cage = null;
 		}
 	}
 
@@ -275,7 +287,7 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 				//GameServices.UpdateLeaderboard( vrplayer.Client.PlayerId, totalscore, Global.MapName + "_" + VRPlayers.Count + "players" );
 				if ( vrplayer.HeadEnt.HitPoints <= 0 )
 				{
-					vrplayer.RevivePlayer( vrplayer.Name );
+					RevivePlayer( vrplayer.Name );
 				}
 			}
 
@@ -323,22 +335,15 @@ public partial class RevolverHysteriaGame : Sandbox.Game
 		}
 	}
 
-	public override void PostCameraSetup( ref CameraSetup camSetup )
+	[Event.Client.PostCamera]
+	public void PostCameraSetup()
 	{
-		if ( Local.Pawn != null )
-		{
-			// VR anchor default is at the pawn's location
-			//VR.Anchor = Local.Pawn.Transform;
-
-			Local.Pawn.PostCameraSetup( ref camSetup );
-		}
-
 		if ( Input.VR.IsActive )
-			camSetup.ZNear = 2.5f;
+			Camera.ZNear = 2.5f;
 		//
 		// Position any viewmodels
 		//
-		BaseViewModel.UpdateAllPostCamera( ref camSetup );
+		//BaseViewModel.UpdateAllPostCamera( ref camSetup );
 
 		//CameraModifier.Apply( ref camSetup );
 	}

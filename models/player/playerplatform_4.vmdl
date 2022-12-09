@@ -15,7 +15,7 @@
 						[
 							{
 								from = "phong1.vmat"
-								to = "models/player/materials/platform.vmat"
+								to = "models/player/materials/substance/playerplatform_4.vmat"
 							},
 						]
 						use_global_default = false

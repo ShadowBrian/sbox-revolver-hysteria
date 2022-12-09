@@ -1,6 +1,5 @@
 ﻿
 using Sandbox;
-using Sandbox.Hooks;
 using Sandbox.UI;
 using Sandbox.UI.Construct;
 using System;
@@ -51,9 +50,9 @@ namespace rh
 				return;
 			}*/
 
-			PlayerName.Text = Ranking + "." + assignedResult.Name.ToLower().Truncate(18);
+			PlayerName.Text = Ranking + "." + assignedResult.Name.ToLower().Truncate( 18 );
 			Kills.Text = assignedResult.Score + "";// .GetInt( "score" ).ToString();
-			SetClass( "me", assignedResult.PlayerId == Local.Client.PlayerId );
+			SetClass( "me", assignedResult.SteamId == Local.Client.SteamId );
 
 			SetClass( "friend", FriendEntry );
 

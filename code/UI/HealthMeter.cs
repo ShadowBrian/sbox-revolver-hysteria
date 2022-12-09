@@ -36,7 +36,7 @@ namespace rh
 
 			if ( player.IsValid() )
 			{
-				int hp = (Game.Current as RevolverHysteriaGame).VRPlayers[player.PlayerIndex - 1].HeadEnt.HitPoints;
+				int hp = (GameManager.Current as RevolverHysteriaGame).VRPlayers[player.PlayerIndex - 1].HeadEnt.HitPoints;
 
 				heart.SetTexture( "ui/vitals/hp_" + ((int)MathX.Clamp( hp, 0, 5 )) + ".png" );//heartimages[(int)MathX.Clamp(MathF.Abs( hp - 5 ),0,4)] );
 

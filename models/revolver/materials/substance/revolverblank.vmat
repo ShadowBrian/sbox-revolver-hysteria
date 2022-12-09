@@ -1,0 +1,14 @@
+
+Layer0
+{
+	shader "complex.vfx"
+
+	TextureColor "models/revolver/materials/substance/revolverblank_phong2_basecolor.png"
+	TextureAmbientOcclusion "materials/default/default_ao.tga"
+	TextureNormal "models/revolver/materials/substance/revolverblank_phong2_normal.png"
+	TextureRoughness "models/revolver/materials/substance/revolverblank_phong2_roughness.png"
+	F_METALNESS_TEXTURE 1
+	F_SPECULAR 1
+	TextureMetalness "models/revolver/materials/substance/revolverblank_phong2_metallic.png"
+
+}

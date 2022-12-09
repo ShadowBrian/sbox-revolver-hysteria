@@ -31,9 +31,9 @@ namespace rh
 				return;
 			}
 
-			if( TimeSinceSpawn > 1f && !player.IsValid() && PlayerIndex != -1 && PlayerIndex-1 < ( Game.Current as RevolverHysteriaGame).VRPlayers.Count)
+			if ( TimeSinceSpawn > 1f && !player.IsValid() && PlayerIndex != -1 && PlayerIndex - 1 < (GameManager.Current as RevolverHysteriaGame).VRPlayers.Count )
 			{
-				player = (Game.Current as RevolverHysteriaGame).VRPlayers[PlayerIndex-1];
+				player = (GameManager.Current as RevolverHysteriaGame).VRPlayers[PlayerIndex - 1];
 			}
 
 			if ( player.IsValid() )

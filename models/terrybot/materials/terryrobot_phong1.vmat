@@ -1,0 +1,14 @@
+
+Layer0
+{
+	shader "complex.vfx"
+
+	TextureColor "models/terrybot/materials/terryrobot_phong1_color.png"
+	TextureAmbientOcclusion "materials/default/default_ao.tga"
+	TextureNormal "models/terrybot/materials/terryrobot_phong1_normal.png"
+	TextureRoughness "models/terrybot/materials/terryrobot_phong1_roughness.png"
+	F_METALNESS_TEXTURE 1
+	F_SPECULAR 1
+	TextureMetalness "models/terrybot/materials/terryrobot_phong1_metallic.png"
+
+}

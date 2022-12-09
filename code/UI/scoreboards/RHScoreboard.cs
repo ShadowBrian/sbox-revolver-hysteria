@@ -1,5 +1,4 @@
 ﻿using Sandbox;
-using Sandbox.Hooks;
 using Sandbox.UI;
 using Sandbox.UI.Construct;
 using System.Threading.Tasks;
@@ -76,11 +75,11 @@ namespace rh
 
 				List<long> friendIDs = new List<long>();
 
-				if(friendentries.Length > 0 )
+				if ( friendentries.Length > 0 )
 				{
 					foreach ( var friendtry in friendentries )
 					{
-						friendIDs.Add( friendtry.PlayerId );
+						friendIDs.Add( friendtry.SteamId );
 					}
 				}
 
@@ -91,7 +90,7 @@ namespace rh
 						var entry = AddClient( boardentry, boardentry.GlobalRank );
 						Rows[boardentry] = entry;
 						Rows[boardentry].Ranking = boardentry.GlobalRank;
-						entry.FriendEntry = friendIDs.Contains( boardentry.PlayerId );
+						entry.FriendEntry = friendIDs.Contains( boardentry.SteamId );
 						//Log.Trace( ranking + "." + client.DisplayName + " " + client.Rating );
 					}
 				}
@@ -126,9 +125,9 @@ namespace rh
 				Rotation = followEnt.Rotation;
 			}
 
-			if ( NumberToDisplay == 0 && VRPlayerCount != (Game.Current as RevolverHysteriaGame).VRPlayers.Count && VRPlayerCount != 1 )
+			if ( NumberToDisplay == 0 && VRPlayerCount != (GameManager.Current as RevolverHysteriaGame).VRPlayers.Count && VRPlayerCount != 1 )
 			{
-				VRPlayerCount = (Game.Current as RevolverHysteriaGame).VRPlayers.Count;
+				VRPlayerCount = (GameManager.Current as RevolverHysteriaGame).VRPlayers.Count;
 				ClearBoard();
 			}
 

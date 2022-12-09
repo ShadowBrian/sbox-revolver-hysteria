@@ -40,6 +40,8 @@ namespace rh
 	public partial class BaseEnemyClass : AnimatedEntity
 	{
 
+		[Net] public float EnemyHealth { get; set; }
+
 		[Net] public EnemyResource enemyResource { get; set; }
 
 		List<Vector3> MovementhPath { get; set; } = new List<Vector3>();
@@ -189,7 +191,7 @@ namespace rh
 		public void PickRandomTarget()
 		{
 			ChosenShootTarget = Rand.Int( 1, 4 );
-			if ( (Game.Current as RevolverHysteriaGame).VRPlayers.Count > 0 && (Game.Current as RevolverHysteriaGame).VRPlayers[(ChosenShootTarget - 1) % (Game.Current as RevolverHysteriaGame).VRPlayers.Count].HeadEnt.HitPoints <= 0 )
+			if ( (GameManager.Current as RevolverHysteriaGame).VRPlayers.Count > 0 && (GameManager.Current as RevolverHysteriaGame).VRPlayers[(ChosenShootTarget - 1) % (GameManager.Current as RevolverHysteriaGame).VRPlayers.Count].HeadEnt.HitPoints <= 0 )
 			{
 				ChosenShootTarget += 1;
 				if ( ChosenShootTarget > 4 )
@@ -290,9 +292,9 @@ namespace rh
 					SetAnimParameter( "b_attack", true );
 					if ( this.IsValid() && Vector3.DistanceBetween( Position, LookDir ) < 120f )
 					{
-						if ( ChosenShootTarget <= (Game.Current as RevolverHysteriaGame).VRPlayers.Count )
+						if ( ChosenShootTarget <= (GameManager.Current as RevolverHysteriaGame).VRPlayers.Count )
 						{
-							(Game.Current as RevolverHysteriaGame).VRPlayers[ChosenShootTarget - 1 % 4].HeadEnt.TakeMeleeDamage();
+							(GameManager.Current as RevolverHysteriaGame).VRPlayers[ChosenShootTarget - 1 % 4].HeadEnt.TakeMeleeDamage();
 						}
 						DeleteAsync( 0.5f );
 						break;
@@ -344,7 +346,17 @@ namespace rh
 				DoHeadshotPopup( info.Position, Rotation.LookAt( info.Attacker.Position - info.Position, Vector3.Up * 10f ), info.Attacker.Client );
 			}
 
-			base.TakeDamage( info );
+			LastAttacker = info.Attacker;
+			LastAttackerWeapon = info.Weapon;
+			if ( IsServer && Health > 0f && LifeState == LifeState.Alive )
+			{
+				Health -= info.Damage;
+				if ( Health <= 0f )
+				{
+					Health = 0f;
+					OnKilled();
+				}
+			}
 
 			SetAnimParameter( "hit_bone", info.BoneIndex );
 			SetAnimParameter( "hit_direction", info.Position - Position );
@@ -428,11 +440,11 @@ namespace rh
 
 			helper = new CitizenAnimationHelper( this );
 
-			if ( ChosenShootTarget <= (Game.Current as RevolverHysteriaGame).VRPlayers.Count && (Game.Current as RevolverHysteriaGame).VRPlayers[ChosenShootTarget - 1].HeadEnt.HitPoints > 0 )
+			if ( ChosenShootTarget <= (GameManager.Current as RevolverHysteriaGame).VRPlayers.Count && (GameManager.Current as RevolverHysteriaGame).VRPlayers[ChosenShootTarget - 1].HeadEnt.HitPoints > 0 )
 			{
-				LookDir = (Game.Current as RevolverHysteriaGame).VRPlayers[ChosenShootTarget - 1].HeadEnt.Position;//- Vector3.Up * 50f * Scale
+				LookDir = (GameManager.Current as RevolverHysteriaGame).VRPlayers[ChosenShootTarget - 1].HeadEnt.Position;//- Vector3.Up * 50f * Scale
 
-				//DebugOverlay.Line( Position, (Game.Current as RevolverHysteriaGame).VRPlayers[ChosenShootTarget - 1].HeadEnt.Position - Vector3.Up * 10f );
+				//DebugOverlay.Line( Position, (GameManager.Current as RevolverHysteriaGame).VRPlayers[ChosenShootTarget - 1].HeadEnt.Position - Vector3.Up * 10f );
 			}
 			else
 			{
